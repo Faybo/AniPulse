@@ -1,13 +1,16 @@
 import { useGetAnimeCollection } from "@/api/hooks/anilist.hooks"
+import { useGetAllAnimeSchedule } from "@/api/hooks/anime_collection.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { useMissingEpisodes } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ScheduleCalendar } from "@/app/(main)/schedule/_components/schedule-calendar"
 import { AppLayoutStack } from "@/components/ui/app-layout"
+import { Button } from "@/components/ui/button"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { addSeconds, formatDistanceToNow } from "date-fns"
 import { useRouter } from "next/navigation"
 import React from "react"
+import { AiOutlineArrowLeft, AiOutlineCalendar } from "react-icons/ai"
 
 /**
  * @description
@@ -18,7 +21,11 @@ export function ComingUpNext() {
     const router = useRouter()
 
     const { data: animeCollection } = useGetAnimeCollection()
+    const { data: allAnimeSchedule } = useGetAllAnimeSchedule()
     const missingEpisodes = useMissingEpisodes()
+
+    // Estado para controlar a visualização (calendar ou list)
+    const [viewMode, setViewMode] = React.useState<"list" | "calendar">("list")
 
     const media = React.useMemo(() => {
         // get all media
@@ -45,15 +52,52 @@ export function ComingUpNext() {
     return (
         <AppLayoutStack className="space-y-8">
             <div className="hidden lg:block space-y-2">
-                <h2>Release schedule</h2>
-                <p className="text-[--muted]">Based on your anime list</p>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h2>Release schedule</h2>
+                        <p className="text-[--muted]">All anime releases</p>
+                    </div>
+                    <div className="flex justify-center gap-4">
+                        {viewMode === "calendar" && (
+                            <Button
+                                size="md"
+                                intent="gray-basic"
+                                leftIcon={<AiOutlineArrowLeft />}
+                                onClick={() => setViewMode("list")}
+                                className="font-slab-serif text-lg px-8 py-3 rounded-xl bg-gradient-to-r from-gray-800 to-gray-700 hover:from-gray-700 hover:to-gray-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                            >
+                                Voltar para Lista
+                            </Button>
+                        )}
+                        {viewMode === "list" && (
+                            <Button
+                                size="md"
+                                intent="gray-basic"
+                                leftIcon={<AiOutlineCalendar />}
+                                onClick={() => setViewMode("calendar")}
+                                className="font-slab-serif text-lg px-8 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                            >
+                                Ver Calendário
+                            </Button>
+                        )}
+                    </div>
+                </div>
             </div>
 
-            <ScheduleCalendar
-                missingEpisodes={missingEpisodes}
-            />
+            {viewMode === "calendar" ? (
+                <ScheduleCalendar
+                    missingEpisodes={missingEpisodes}
+                />
+            ) : (
+                <div className="space-y-4">
+                    <div className="text-center py-8">
+                        <h3 className="text-lg font-semibold mb-2">Próximos Episódios</h3>
+                        <p className="text-[--muted]">Baseado na sua lista de animes</p>
+                    </div>
+                </div>
+            )}
 
-            {media.length > 0 && (
+            {viewMode === "list" && media.length > 0 && (
                 <>
                     <div>
                         <h2>Coming up next</h2>

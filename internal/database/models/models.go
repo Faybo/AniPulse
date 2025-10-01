@@ -482,6 +482,17 @@ type DebridTorrentItem struct {
 }
 
 // +---------------------+
+// |      Views          |
+// +---------------------+
+
+type AnimeViews struct {
+	BaseModel
+	MediaId      int        `gorm:"column:media_id;index" json:"mediaId"`
+	Views        int        `gorm:"column:views" json:"views"`
+	LastViewedAt *time.Time `gorm:"column:last_viewed_at" json:"lastViewedAt"`
+}
+
+// +---------------------+
 // |       Plugin        |
 // +---------------------+
 
@@ -489,6 +500,19 @@ type PluginData struct {
 	BaseModel
 	PluginID string `gorm:"column:plugin_id;index" json:"pluginId"`
 	Data     []byte `gorm:"column:data" json:"data"`
+}
+
+// +---------------------+
+// |   Contact Messages  |
+// +---------------------+
+
+type ContactMessage struct {
+	BaseModel
+	Email   string `gorm:"column:email;not null" json:"email"`
+	Subject string `gorm:"column:subject;not null" json:"subject"`
+	Message string `gorm:"column:message;not null" json:"message"`
+	IP      string `gorm:"column:ip" json:"ip"`
+	Read    bool   `gorm:"column:read;default:false" json:"read"`
 }
 
 ///////////////////////////////////////////////////////////////////////////

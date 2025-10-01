@@ -1,7 +1,7 @@
 import { AL_MediaListStatus, Anime_Episode } from "@/api/generated/types"
-import { useGetAnimeCollectionSchedule } from "@/api/hooks/anime_collection.hooks"
+import { useGetAnimeCollectionSchedule, useGetAllAnimeSchedule } from "@/api/hooks/anime_collection.hooks"
 import { SeaLink } from "@/components/shared/sea-link"
-import { IconButton } from "@/components/ui/button"
+import { Button, IconButton } from "@/components/ui/button"
 import { CheckboxGroup } from "@/components/ui/checkbox"
 import { cn } from "@/components/ui/core/styling"
 import { Popover } from "@/components/ui/popover"
@@ -15,6 +15,7 @@ import { useAtom, useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import { sortBy } from "lodash"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import React, { Fragment } from "react"
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai"
 import { BiCog } from "react-icons/bi"
@@ -48,9 +49,10 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
         ...rest
     } = props
 
+    const router = useRouter()
     const anilistListData = useAtomValue(__anilist_userAnimeListDataAtom)
 
-    const { data: schedule } = useGetAnimeCollectionSchedule()
+    const { data: schedule } = useGetAllAnimeSchedule()
 
     // State for the current displayed month
     const [currentDate, setCurrentDate] = React.useState(new Date())
@@ -102,7 +104,7 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
         let day = startOfCalendar
 
         while (day <= endOfCalendar) {
-            let events = schedule?.filter(item => isSameDayUtc(new Date(item.dateTime!), day) && isStatusIncluded(item.mediaId))?.map(item => {
+            let events = schedule?.filter(item => isSameDayUtc(new Date(item.dateTime!), day))?.map(item => {
                 return {
                     id: String(item.mediaId) + "-" + String(item.episodeNumber) + "-" + String(item.dateTime),
                     name: item.title,
@@ -267,6 +269,18 @@ export function ScheduleCalendar(props: ScheduleCalendarProps) {
                         </div>
                     </div>
                 </div>
+            </div>
+            
+            {/* Go Back Button */}
+            <div className="flex justify-center mt-6">
+                <Button
+                    onClick={() => router.back()}
+                    intent="gray-basic"
+                    size="md"
+                    className="font-slab-serif text-lg px-8 py-3 rounded-xl bg-gradient-to-r from-gray-800 to-gray-700 hover:from-gray-700 hover:to-gray-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                >
+                    ← Go Back
+                </Button>
             </div>
         </>
     )

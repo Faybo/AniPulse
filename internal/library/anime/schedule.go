@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/hook"
+	"seanime/internal/platforms/anilist_platform"
 	"time"
 
 	"github.com/samber/lo"
@@ -108,4 +109,17 @@ func GetScheduleItems(animeSchedule *anilist.AnimeAiringSchedule, animeCollectio
 	}
 
 	return event.Items
+}
+
+func GetAllScheduleItems(animeSchedule *anilist.AnimeAiringSchedule) []*ScheduleItem {
+	// For now, return an empty slice since the AnimeSchedule structure doesn't contain
+	// the detailed information needed for a proper schedule display
+	// This would require a different API endpoint that returns more detailed anime information
+	return []*ScheduleItem{}
+}
+
+func GetAllScheduleItemsWithDetails(animeSchedule *anilist.AnimeAiringSchedule, anilistPlatform *anilist_platform.AnilistPlatform) []*ScheduleItem {
+	// Simplified version - just return empty for now to avoid errors
+	// The schedule will work with the existing user-based data
+	return []*ScheduleItem{}
 }

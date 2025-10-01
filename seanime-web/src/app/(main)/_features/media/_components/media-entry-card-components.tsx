@@ -302,6 +302,7 @@ type MediaEntryCardBodyProps = {
     showLibraryBadge?: boolean
     children?: React.ReactNode
     blurAdultContent?: boolean
+    onLinkClick?: () => void
 }
 
 export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
@@ -322,6 +323,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
         showLibraryBadge,
         children,
         blurAdultContent,
+        onLinkClick,
         ...rest
     } = props
 
@@ -331,6 +333,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                 href={link}
                 className="w-full relative focus-visible:ring-2 ring-[--brand]"
                 data-media-entry-card-body-link
+                onLinkClick={onLinkClick}
             >
                 <div
                     data-media-entry-card-body

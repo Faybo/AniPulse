@@ -5,7 +5,8 @@ import { Continuity_WatchHistory, Continuity_WatchHistoryItemResponse, Nullish }
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { logger } from "@/lib/helpers/debug"
 import { useQueryClient } from "@tanstack/react-query"
-import { MediaPlayerInstance } from "@vidstack/react"
+// import { MediaPlayerInstance } from "@vidstack/react"
+type MediaPlayerInstance = any
 import React from "react"
 
 export function useUpdateContinuityWatchHistoryItem() {

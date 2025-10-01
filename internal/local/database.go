@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"seanime/internal/database/models"
+
 	"github.com/glebarez/sqlite"
 	"github.com/rs/zerolog"
 	"gorm.io/gorm"
@@ -69,6 +71,7 @@ func migrateTables(db *gorm.DB) error {
 		&AnimeSnapshot{},
 		&MangaSnapshot{},
 		&TrackedMedia{},
+		&models.AnimeViews{},
 	)
 	if err != nil {
 		return err

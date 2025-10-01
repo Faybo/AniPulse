@@ -5,6 +5,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
+	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/torrentstream"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
@@ -174,6 +175,24 @@ func (h *Handler) HandleGetAnimeCollectionSchedule(c echo.Context) error {
 	ret := anime.GetScheduleItems(animeSchedule, animeCollection)
 
 	animeScheduleCache.SetT(1, ret, 1*time.Hour)
+
+	return h.RespondWithData(c, ret)
+}
+
+// HandleGetAllAnimeSchedule
+//
+//	@summary returns all anime schedule (not just user's collection)
+//	@desc This is used by the "Schedule" page to display all anime schedule.
+//	@route /api/v1/library/schedule/all [GET]
+//	@returns []anime.ScheduleItem
+func (h *Handler) HandleGetAllAnimeSchedule(c echo.Context) error {
+
+	animeSchedule, err := h.App.AnilistPlatform.GetAnimeAiringSchedule(c.Request().Context())
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	ret := anime.GetAllScheduleItemsWithDetails(animeSchedule, h.App.AnilistPlatform.(*anilist_platform.AnilistPlatform))
 
 	return h.RespondWithData(c, ret)
 }

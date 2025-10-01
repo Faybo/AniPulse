@@ -109,6 +109,13 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	e.GET("/events", h.webSocketEventHandler)
 
 	v1 := e.Group("/api").Group("/v1") // Commented out for now, will be used later
+	// --- Admin analytics (dev/local) ---
+	e.GET("/api/admin/stats", h.HandleAdminStats)
+	e.GET("/api/admin/top-visitors", h.HandleAdminTopVisitors)
+	e.GET("/api/admin/top-countries", h.HandleAdminTopCountries)
+	e.GET("/api/admin/visitors/by-ip", h.HandleAdminVisitorsByIP)
+	// Public tracking endpoint used when UI is served by Next.js dev server
+	e.POST("/api/track-visit", h.HandleTrackVisit)
 
 	//
 	// Auth middleware
@@ -222,6 +229,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	v1Library.GET("/collection", h.HandleGetLibraryCollection)
 	v1Library.GET("/schedule", h.HandleGetAnimeCollectionSchedule)
+	v1Library.GET("/schedule/all", h.HandleGetAllAnimeSchedule)
 
 	v1Library.GET("/scan-summaries", h.HandleGetScanSummaries)
 
@@ -243,6 +251,21 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	// Anime
 	//
 	v1.GET("/anime/episode-collection/:id", h.HandleGetAnimeEpisodeCollection)
+
+	// Anime Views
+	v1.GET("/anime/views/:id", h.HandleGetAnimeViews)
+	v1.POST("/anime/views/increment", h.HandleIncrementAnimeViews)
+	v1.GET("/anime/views/top", h.HandleGetTopAnimeViews)
+	v1.GET("/anime/views/top/:filter", h.HandleGetAnimeViewsByTimeFilter)
+	v1.POST("/anime/views/reset", h.HandleResetAnimeViews)
+
+	//
+	// Contact
+	//
+	v1.POST("/contact", h.HandleContactSubmit)
+	v1.GET("/contact/messages", h.HandleGetContactMessages)
+	v1.PATCH("/contact/messages/:id/read", h.HandleMarkContactMessageRead)
+	v1.DELETE("/contact/messages/:id", h.HandleDeleteContactMessage)
 
 	//
 	// Torrent / Torrent Client
@@ -538,21 +561,19 @@ func headMethodMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		if c.Request().Method == http.MethodHead {
-			// Set the method to GET temporarily to reuse the handler
+			// Tratar HEAD como GET apenas uma vez e sair para evitar chamada dupla
+			originalMethod := c.Request().Method
 			c.Request().Method = http.MethodGet
-
-			defer func() {
-				c.Request().Method = http.MethodHead
-			}() // Restore method after
-
-			// Call the next handler and then clear the response body
-			if err := next(c); err != nil {
+			err := next(c)
+			c.Request().Method = originalMethod
+			if err != nil {
 				if err.Error() == echo.ErrMethodNotAllowed.Error() {
 					return c.NoContent(http.StatusOK)
 				}
-
 				return err
 			}
+			// A resposta já foi escrita pelo handler; para HEAD o cliente ignora o corpo.
+			return nil
 		}
 
 		return next(c)

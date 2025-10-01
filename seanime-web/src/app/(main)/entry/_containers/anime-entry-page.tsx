@@ -1,5 +1,7 @@
 import { useGetAnilistAnimeDetails } from "@/api/hooks/anilist.hooks"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
+import { useGlobalAnimeTracking } from "@/hooks/use-global-anime-tracking"
+import { ConditionalAd, ConditionalNativeAd } from "@/components/ads/ad-manager"
 import { MediaEntryCharactersSection } from "@/app/(main)/_features/media/_components/media-entry-characters-section"
 import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
@@ -64,6 +66,18 @@ export function AnimeEntryPage() {
     const { data: animeEntry, isLoading: animeEntryLoading } = useGetAnimeEntry(mediaId)
     const { data: animeDetails, isLoading: animeDetailsLoading } = useGetAnilistAnimeDetails(mediaId)
     const ts = useThemeSettings()
+    const { trackAnimeView } = useGlobalAnimeTracking()
+
+    // Track view when page loads (only once per session)
+    React.useEffect(() => {
+        if (mediaId && !animeEntryLoading && !animeDetailsLoading) {
+            const sessionKey = `viewed_${mediaId}`
+            if (!sessionStorage.getItem(sessionKey)) {
+                trackAnimeView(parseInt(mediaId), "anime")
+                sessionStorage.setItem(sessionKey, "true")
+            }
+        }
+    }, [mediaId, animeEntryLoading, animeDetailsLoading, trackAnimeView])
 
     const { currentView, isLibraryView, setView } = useAnimeEntryPageView()
 
@@ -101,26 +115,14 @@ export function AnimeEntryPage() {
             }
         }
 
+        // Always open Online Streaming by default when entering anime page
         if (!animeEntryLoading &&
             animeEntry?.media?.status !== "NOT_YET_RELEASED" && // Anime is not yet released
-            !animeEntry?.libraryData && // Anime is not in library
             isLibraryView && // Current view is library
-            (
-                // If any of the fallbacks are enabled and the view has not been switched yet
-                (serverStatus?.torrentstreamSettings?.enabled && serverStatus?.torrentstreamSettings?.includeInLibrary) ||
-                (serverStatus?.debridSettings?.enabled && serverStatus?.debridSettings?.includeDebridStreamInLibrary) ||
-                (serverStatus?.settings?.library?.enableOnlinestream && serverStatus?.settings?.library?.includeOnlineStreamingInLibrary)
-            ) &&
             !switchedView.current // View has not been switched yet
         ) {
             switchedView.current = true
-            if (serverStatus?.debridSettings?.enabled && serverStatus?.debridSettings?.includeDebridStreamInLibrary) {
-                setView("debridstream")
-            } else if (serverStatus?.torrentstreamSettings?.enabled && serverStatus?.torrentstreamSettings?.includeInLibrary) {
-                setView("torrentstream")
-            } else if (serverStatus?.settings?.library?.enableOnlinestream && serverStatus?.settings?.library?.includeOnlineStreamingInLibrary) {
-                setView("onlinestream")
-            }
+            setView("onlinestream")
         }
 
     }, [animeEntryLoading, searchParams, serverStatus?.torrentstreamSettings?.includeInLibrary, currentView])

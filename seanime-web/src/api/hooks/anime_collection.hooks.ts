@@ -38,3 +38,12 @@ export function useGetAnimeCollectionSchedule() {
         enabled: true,
     })
 }
+
+export function useGetAllAnimeSchedule() {
+    return useServerQuery<Array<Anime_ScheduleItem>>({
+        endpoint: "/api/v1/library/schedule/all",
+        method: "GET",
+        queryKey: ["anime-schedule-all"],
+        enabled: true,
+    })
+}

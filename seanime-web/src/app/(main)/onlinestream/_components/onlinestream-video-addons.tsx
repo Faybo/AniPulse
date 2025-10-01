@@ -16,6 +16,7 @@ import { Menu, Tooltip } from "@vidstack/react"
 import { ChevronLeftIcon, ChevronRightIcon, RadioButtonIcon, RadioButtonSelectedIcon } from "@vidstack/react/icons"
 import { useAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import React from "react"
 import { HiOutlineCog6Tooth } from "react-icons/hi2"
 import { LuGlobe, LuSpeech } from "react-icons/lu"
@@ -79,6 +80,12 @@ export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
     const { servers, providerExtensionOptions, changeProvider, changeServer } = useOnlinestreamManagerContext()
 
     const router = useRouter()
+    const serverStatus = useServerStatus()
+    const isAdmin = !!serverStatus && (
+        // Admin por IP (ambiente dev/local) ou fallback userSimulated==false
+        // Aqui simplificamos: só mostramos para localhost
+        (typeof window !== "undefined" && (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"))
+    )
     const [provider] = useAtom(__onlinestream_selectedProviderAtom)
     const [selectedServer] = useAtom(__onlinestream_selectedServerAtom)
 
@@ -90,10 +97,7 @@ export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
                 value={provider || ""}
                 options={[
                     ...providerExtensionOptions,
-                    {
-                        value: "add-provider",
-                        label: "Find other providers",
-                    },
+                    ...(isAdmin ? [{ value: "add-provider", label: "Find other providers" }] : []),
                 ]}
                 onValueChange={(v) => {
                     if (v === "add-provider") {

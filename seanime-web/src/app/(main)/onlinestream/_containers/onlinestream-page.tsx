@@ -32,7 +32,6 @@ import React from "react"
 import { BsFillGrid3X3GapFill } from "react-icons/bs"
 import { FaSearch } from "react-icons/fa"
 import "@/app/vidstack-theme.css"
-import "@vidstack/react/player/styles/default/layouts/video.css"
 import { PluginEpisodeGridItemMenuItems } from "../../_features/plugin/actions/plugin-actions"
 
 type OnlinestreamPageProps = {

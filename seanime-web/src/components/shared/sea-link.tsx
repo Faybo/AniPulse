@@ -4,7 +4,9 @@ import Link, { LinkProps } from "next/link"
 import { useRouter } from "next/navigation"
 import React from "react"
 
-type SeaLinkProps = {} & LinkProps & React.ComponentPropsWithRef<"a">
+type SeaLinkProps = {} & LinkProps & React.ComponentPropsWithRef<"a"> & {
+    onLinkClick?: () => void
+}
 
 export const SeaLink = React.forwardRef((props: SeaLinkProps, _) => {
 
@@ -12,10 +14,16 @@ export const SeaLink = React.forwardRef((props: SeaLinkProps, _) => {
         href,
         children,
         className,
+        onLinkClick,
         ...rest
     } = props
 
     const router = useRouter()
+
+    const handleClick = () => {
+        onLinkClick?.()
+        router.push(href as string)
+    }
 
     if (__isDesktop__ && rest.target !== "_blank") {
         return (
@@ -24,9 +32,7 @@ export const SeaLink = React.forwardRef((props: SeaLinkProps, _) => {
                     "cursor-pointer",
                     className,
                 )}
-                onClick={() => {
-                    router.push(href as string)
-                }}
+                onClick={handleClick}
                 data-current={(rest as any)["data-current"]}
             >
                 {children}
@@ -35,8 +41,10 @@ export const SeaLink = React.forwardRef((props: SeaLinkProps, _) => {
     }
 
     return (
-        <Link href={href} className={cn("cursor-pointer", className)} {...rest}>
-            {children}
-        </Link>
+        <div onClick={onLinkClick}>
+            <Link href={href} className={cn("cursor-pointer", className)} {...rest}>
+                {children}
+            </Link>
+        </div>
     )
 })

@@ -14,6 +14,45 @@
     --media-menu-radio-check-size: 14px;
 }
 
+/* Fix para layout dos controles do player - botões organizados corretamente */
+/* O DefaultVideoLayout usa uma estrutura com vários grupos */
+.vds-controls [data-part="bottom-controls-group"] {
+    display: flex !important;
+    width: 100% !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+/* Grupo da esquerda: Play + Volume */
+.vds-controls [data-part="bottom-controls-group"] > [data-part="center-controls-group"] {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    flex: 0 0 auto !important;
+}
+
+/* Adicionar spacer entre esquerda e direita */
+.vds-controls [data-part="bottom-controls-group"]::after {
+    content: '';
+    flex: 1 1 auto !important;
+}
+
+/* Forçar distribuição dos controles */
+.vds-controls .vds-play-button,
+.vds-controls .vds-mute-button,
+.vds-controls .vds-volume-slider {
+    order: -10 !important;
+}
+
+.vds-controls .vds-caption-button,
+.vds-controls .vds-settings-menu,
+.vds-controls .vds-pip-button,
+.vds-controls .vds-fullscreen-button {
+    order: 10 !important;
+    margin-left: auto !important;
+}
+
 /*
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * Player

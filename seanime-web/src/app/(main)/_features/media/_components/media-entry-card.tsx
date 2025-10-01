@@ -27,7 +27,9 @@ import {
 import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
 import { MediaEntryScoreBadge } from "@/app/(main)/_features/media/_components/media-entry-score-badge"
+import { AnimeViews } from "@/components/shared/anime-views"
 import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
+import { useGlobalAnimeTracking } from "@/hooks/use-global-anime-tracking"
 import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
 import { useAnilistUserAnimeListData } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useMissingEpisodes } from "@/app/(main)/_hooks/missing-episodes-loader"
@@ -145,7 +147,20 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     }, [listDataFromCollection, _listData])
 
     const { setPlayNext } = usePlayNext()
+    const { trackAnimeView: globalTrackAnimeView } = useGlobalAnimeTracking()
+    
+    // Track views when user clicks on anime card or "Watch" button
+    const trackAnimeView = React.useCallback(() => {
+        console.log("🎬 MediaEntryCard tracking called for:", media.id, "type:", type)
+        console.log("🎬 MediaEntryCard media object:", media)
+        console.log("🎬 MediaEntryCard type check:", type === "anime")
+        globalTrackAnimeView(media.id, type)
+    }, [media.id, type, globalTrackAnimeView])
+    
     const handleWatchButtonClicked = React.useCallback(() => {
+        // Track view when user clicks "Watch" button
+        trackAnimeView()
+        
         if ((!!listData?.progress && (listData?.status !== "COMPLETED"))) {
             setPlayNext(media.id, () => {
                 router.push(ANIME_LINK)
@@ -153,7 +168,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
         } else {
             router.push(ANIME_LINK)
         }
-    }, [listData?.progress, listData?.status, media.id])
+    }, [listData?.progress, listData?.status, media.id, trackAnimeView])
 
     const onPopupMouseEnter = React.useCallback(() => {
         setActionPopupHover(media.id)
@@ -305,6 +320,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                 isAdult={media.isAdult}
                 showLibraryBadge={showLibraryBadge}
                 blurAdultContent={serverStatus?.settings?.anilist?.blurAdultContent}
+                onLinkClick={trackAnimeView}
             >
                 <div data-media-entry-card-body-progress-badge-container className="absolute z-[10] left-0 bottom-0 flex items-end">
                     <MediaEntryProgressBadge
@@ -333,6 +349,15 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                         score={listData?.score}
                     />
                 </div>
+                {type === "anime" && (
+                    <div data-media-entry-card-body-views-container className="absolute z-[10] left-0 top-2">
+                        <AnimeViews
+                            mediaId={media.id}
+                            size="sm"
+                            className="bg-black/50 backdrop-blur-sm rounded-md px-2 py-1"
+                        />
+                    </div>
+                )}
                 {(type === "anime" && !!libraryData && missingEpisodes.find(n => n.baseAnime?.id === media.id)) && (
                     <div
                         data-media-entry-card-body-missing-episodes-badge-container

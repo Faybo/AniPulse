@@ -1,0 +1,37 @@
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": 43211,
+    "domain": "newnarutoragnarok.site"
+  },
+  "database": {
+    "type": "sqlite",
+    "path": "./data-dev/seanime.db"
+  },
+  "cors": {
+    "allowed_origins": [
+      "https://newnarutoragnarok.site",
+      "https://www.newnarutoragnarok.site",
+      "http://localhost:3000"
+    ]
+  },
+  "seo": {
+    "site_name": "AniPulse",
+    "site_description": "AniPulse - Watch your favorite anime online for free in HD quality. The best anime streaming platform with latest episodes and series.",
+    "keywords": "AniPulse, anime online, watch anime free, anime streaming, anime episodes, anime series, HD anime, free anime",
+    "og_image": "/logo_anime.png"
+  },
+  "owner_privacy": {
+    "hide_owner_info": true,
+    "anonymous_domain": true,
+    "no_owner_tracking": true,
+    "encrypt_admin_logs": true
+  },
+  "admin": {
+    "allowed_ips": ["85.138.119.100", "127.0.0.1", "207.180.207.30"],
+    "hide_extensions_menu": true,
+    "hide_providers_menu": true,
+    "default_extension": "anicrush",
+    "admin_only_pages": ["/extensions", "/settings", "/admin"]
+  }
+}

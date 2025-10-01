@@ -1,91 +1,62 @@
-.idea
-.junie
-logs/
-*.db
-.run/
-testdata/
-.vscode
-.cursor
-.DS_Store
-*/.DS_Store
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
 
-Dockerfile
-Dockerfile.dev
-dev.dockerfile
-.dockerignore
+# Test binary, built with `go test -c`
+*.test
 
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go workspace file
 go.work
 
-_docker-compose.yml
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
 
-logs
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+seanime-web-backup/
+data-*/
+*.log
+*.db
+*.cache
 web/
-web-desktop/
-web-denshi/
+
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Next.js
+.next/
 out/
-./assets/
+.env.production.local
+.env.local
+.env.web
 
-test/testdata/**/*.json
-test/sample
-test/providers.json
-test/db.json
-test/providers.json
-test/config.json
-test/config.toml
-whats-new.md
+# Build outputs
+dist/
+build/
 
-*/mock_data.json
-
-TODO-priv.md
-
-##
-## Parser
-##
-seanime-parser/.git
-
-##
-## Web
-##
-seanime-web/node_modules
-seanime-web/out
-seanime-web/out-desktop
-seanime-web/out-denshi
-seanime-web/web
-seanime-web/.next
-seanime-web/.idea
-# dependencies
-seanime-web/.pnp
-seanime-web/.pnp.js
-seanime-web/.yarn/install-state.gz
-# testing
-seanime-web/coverage
-# next.js
-# production
-seanime-web/build
-# misc
-seanime-web/.DS_Store
-seanime-web/*.pem
-# debug
-seanime-web/npm-debug.log*
-seanime-web/yarn-debug.log*
-seanime-web/yarn-error.log*
-# local env files
-seanime-web/.env*.local
-# vercel
-seanime-web/.vercel
-# typescript
-seanime-web/*.tsbuildinfo
-seanime-web/next-env.d.ts
-seanime-web/snapshot
-seanime-web/logs
-seanime-web/analyze
-seanime-web/TODO-priv.md
-seanime-web/CHANGELOG-priv.md
-
-codegen/generated/hooks.mdx
-
-
-internal/extension_repo/goja_onlinestream_test/test1.ts
-internal/extension_repo/goja_plugin_test
-
-*.sh
+# Environment files (mantém .env.example se tiveres)
+.env
+!.env.example

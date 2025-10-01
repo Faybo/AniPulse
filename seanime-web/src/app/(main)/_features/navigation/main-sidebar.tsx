@@ -26,7 +26,8 @@ import { Modal } from "@/components/ui/modal"
 import { VerticalMenu, VerticalMenuItem } from "@/components/ui/vertical-menu"
 import { openTab } from "@/lib/helpers/browser"
 import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/server/config"
-import { TORRENT_CLIENT, TORRENT_PROVIDER } from "@/lib/server/settings"
+// Torrent imports removidos - mantendo apenas online streaming
+// import { TORRENT_CLIENT, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { __isDesktop__, __isElectronDesktop__, __isTauriDesktop__ } from "@/types/constants"
@@ -34,16 +35,15 @@ import { useAtom, useSetAtom } from "jotai"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
-import { BiCalendarAlt, BiChevronRight, BiDownload, BiExtension, BiLogIn, BiLogOut, BiNews } from "react-icons/bi"
+import { BiCalendarAlt, BiChevronRight, BiExtension, BiLogIn, BiLogOut, BiNews } from "react-icons/bi"
 import { FaBookReader } from "react-icons/fa"
-import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
-import { GrTest } from "react-icons/gr"
-import { HiOutlineServerStack } from "react-icons/hi2"
-import { IoCloudOfflineOutline, IoLibrary } from "react-icons/io5"
+import { FiLogIn, FiSettings } from "react-icons/fi"
+import { HiOutlineMail } from "react-icons/hi"
+import { IoCloudOfflineOutline, IoLibrary, IoReload } from "react-icons/io5"
 import { MdOutlineConnectWithoutContact } from "react-icons/md"
-import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiClockCounterClockwiseFill, PiListChecksFill } from "react-icons/pi"
+import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiListChecksFill } from "react-icons/pi"
 import { SiAnilist } from "react-icons/si"
-import { TbWorldDownload } from "react-icons/tb"
+// TbWorldDownload removido - torrent features desabilitados
 import { nakamaModalOpenAtom, useNakamaStatus } from "../nakama/nakama-manager"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 
@@ -129,13 +129,14 @@ export function MainSidebar() {
             href: "/",
             isCurrent: pathname === "/",
         },
-        ...(process.env.NODE_ENV === "development" ? [{
-            id: "test",
-            iconType: GrTest,
-            name: "Test",
-            href: "/test",
-            isCurrent: pathname === "/test",
-        }] : []),
+        // Test item removido - simplificando interface
+        // ...(process.env.NODE_ENV === "development" ? [{
+        //     id: "test",
+        //     iconType: GrTest,
+        //     name: "Test",
+        //     href: "/test",
+        //     isCurrent: pathname === "/test",
+        // }] : []),
         {
             id: "schedule",
             iconType: BiCalendarAlt,
@@ -168,6 +169,13 @@ export function MainSidebar() {
             href: "/anilist",
             isCurrent: pathname === "/anilist",
         },
+        {
+            id: "contact",
+            iconType: HiOutlineMail,
+            name: "Contact",
+            href: "/contact",
+            isCurrent: pathname === "/contact",
+        },
         ...serverStatus?.settings?.nakama?.enabled ? [{
             id: "nakama",
             iconType: MdOutlineConnectWithoutContact,
@@ -186,59 +194,64 @@ export function MainSidebar() {
                 ></div>}
             </>,
         }] : [],
-        ...serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE ? [{
-            id: "auto-downloader",
-            iconType: TbWorldDownload,
-            name: "Auto Downloader",
-            href: "/auto-downloader",
-            isCurrent: pathname === "/auto-downloader",
-            addon: autoDownloaderQueueCount > 0 ? <Badge
-                className="absolute right-0 top-0" size="sm"
-                intent="alert-solid"
-            >{autoDownloaderQueueCount}</Badge> : undefined,
-        }] : [],
-        ...(
-            serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE
-            && !serverStatus?.settings?.torrent?.hideTorrentList
-            && serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE)
-            ? [{
-                id: "torrent-list",
-                iconType: BiDownload,
-                name: (activeTorrentCount.seeding === 0 || !serverStatus?.settings?.torrent?.showActiveTorrentCount)
-                    ? "Torrent list"
-                    : `Torrent list (${activeTorrentCount.seeding} seeding)`,
-                href: "/torrent-list",
-                isCurrent: pathname === "/torrent-list",
-                addon: ((activeTorrentCount.downloading + activeTorrentCount.paused) > 0 && serverStatus?.settings?.torrent?.showActiveTorrentCount)
-                    ? <Badge
-                        className="absolute right-0 top-0 bg-green-500" size="sm"
-                        intent="alert-solid"
-                    >{activeTorrentCount.downloading + activeTorrentCount.paused}</Badge>
-                    : undefined,
-            }] : [],
-        ...(serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider) ? [{
-            id: "debrid",
-            iconType: HiOutlineServerStack,
-            name: "Debrid",
-            href: "/debrid",
-            isCurrent: pathname === "/debrid",
-        }] : [],
-        {
-            id: "scan-summaries",
-            iconType: PiClockCounterClockwiseFill,
-            name: "Scan summaries",
-            href: "/scan-summaries",
-            isCurrent: pathname === "/scan-summaries",
-        },
-        {
-            id: "search",
-            iconType: FiSearch,
-            name: "Search",
-            onClick: () => {
-                ctx.setOpen(false)
-                setGlobalSearchIsOpen(true)
-            },
-        },
+        // Auto Downloader removido - mantendo apenas online streaming
+        // ...serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE ? [{
+        //     id: "auto-downloader",
+        //     iconType: TbWorldDownload,
+        //     name: "Auto Downloader",
+        //     href: "/auto-downloader",
+        //     isCurrent: pathname === "/auto-downloader",
+        //     addon: autoDownloaderQueueCount > 0 ? <Badge
+        //         className="absolute right-0 top-0" size="sm"
+        //         intent="alert-solid"
+        //     >{autoDownloaderQueueCount}</Badge> : undefined,
+        // }] : [],
+        // Torrent list removido - mantendo apenas online streaming
+        // ...(
+        //     serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE
+        //     && !serverStatus?.settings?.torrent?.hideTorrentList
+        //     && serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE)
+        //     ? [{
+        //         id: "torrent-list",
+        //         iconType: BiDownload,
+        //         name: (activeTorrentCount.seeding === 0 || !serverStatus?.settings?.torrent?.showActiveTorrentCount)
+        //             ? "Torrent list"
+        //             : `Torrent list (${activeTorrentCount.seeding} seeding)`,
+        //         href: "/torrent-list",
+        //         isCurrent: pathname === "/torrent-list",
+        //         addon: ((activeTorrentCount.downloading + activeTorrentCount.paused) > 0 && serverStatus?.settings?.torrent?.showActiveTorrentCount)
+        //             ? <Badge
+        //                 className="absolute right-0 top-0 bg-green-500" size="sm"
+        //                 intent="alert-solid"
+        //             >{activeTorrentCount.downloading + activeTorrentCount.paused}</Badge>
+        //             : undefined,
+        //     }] : [],
+        // Debrid removido - mantendo apenas online streaming
+        // ...(serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider) ? [{
+        //     id: "debrid",
+        //     iconType: HiOutlineServerStack,
+        //     name: "Debrid",
+        //     href: "/debrid",
+        //     isCurrent: pathname === "/debrid",
+        // }] : [],
+        // Scan summaries removido - simplificando interface
+        // {
+        //     id: "scan-summaries",
+        //     iconType: PiClockCounterClockwiseFill,
+        //     name: "Scan summaries",
+        //     href: "/scan-summaries",
+        //     isCurrent: pathname === "/scan-summaries",
+        // },
+        // Search removido - simplificando interface
+        // {
+        //     id: "search",
+        //     iconType: FiSearch,
+        //     name: "Search",
+        //     onClick: () => {
+        //         ctx.setOpen(false)
+        //         setGlobalSearchIsOpen(true)
+        //     },
+        // },
     ]
 
     const pinnedMenuItems = React.useMemo(() => {

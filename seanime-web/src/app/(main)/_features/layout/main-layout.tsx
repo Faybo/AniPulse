@@ -7,7 +7,6 @@ import { GlobalSearch } from "@/app/(main)/_features/global-search/global-search
 import { IssueReport } from "@/app/(main)/_features/issue-report/issue-report"
 import { LibraryWatcher } from "@/app/(main)/_features/library-watcher/library-watcher"
 import { MediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
-import { MainSidebar } from "@/app/(main)/_features/navigation/main-sidebar"
 import { PluginManager } from "@/app/(main)/_features/plugin/plugin-manager"
 import { ManualProgressTracking } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
 import { PlaybackManagerProgressTracking } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
@@ -27,6 +26,7 @@ import { DebridStreamOverlay } from "@/app/(main)/entry/_containers/debrid-strea
 import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
 import { ChapterDownloadsDrawer } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
+import { Footer } from "@/components/shared/footer"
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
 import { __isElectronDesktop__ } from "@/types/constants"
 import { usePathname, useRouter } from "next/navigation"
@@ -37,6 +37,7 @@ import { Announcements } from "../announcements"
 import { NakamaManager } from "../nakama/nakama-manager"
 import { NativePlayer } from "../native-player/native-player"
 import { TopIndefiniteLoader } from "../top-indefinite-loader"
+import { AuthButton } from "../auth/auth-button"
 
 export const MainLayout = ({ children }: { children: React.ReactNode }) => {
 
@@ -97,16 +98,15 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <TopIndefiniteLoader />
             <Announcements />
 
+            <AuthButton />
             <AppSidebarProvider>
-                <AppLayout withSidebar sidebarSize="slim">
-                    <AppLayoutSidebar>
-                        <MainSidebar />
-                    </AppLayoutSidebar>
-                    <AppLayout>
-                        <AppLayoutContent>
+                <AppLayout>
+                    <AppLayoutContent>
+                        <div className="min-h-screen flex flex-col">
                             {children}
-                        </AppLayoutContent>
-                    </AppLayout>
+                            <Footer />
+                        </div>
+                    </AppLayoutContent>
                 </AppLayout>
             </AppSidebarProvider>
         </>

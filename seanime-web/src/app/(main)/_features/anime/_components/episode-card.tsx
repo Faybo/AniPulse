@@ -9,6 +9,7 @@ import { cn } from "@/components/ui/core/styling"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
+import { useGlobalAnimeTracking } from "@/hooks/use-global-anime-tracking"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
@@ -77,10 +78,21 @@ export function EpisodeCard(props: EpisodeCardProps) {
     const serverStatus = useServerStatus()
     const ts = useThemeSettings()
     const { setPreviewModalMediaId } = useMediaPreviewModal()
+    const { trackAnimeView } = useGlobalAnimeTracking()
 
     const showAnimeInfo = ts.showEpisodeCardAnimeInfo && !!anime
     const showTotalEpisodes = React.useMemo(() => !!progressTotal && progressTotal > 1, [progressTotal])
     const offset = React.useMemo(() => hasDiscrepancy ? 1 : 0, [hasDiscrepancy])
+
+    // Track anime view when card is clicked
+    const handleCardClick = React.useCallback(() => {
+        if (anime?.id) {
+            trackAnimeView(anime.id, "anime")
+        }
+        if (onClick) {
+            onClick()
+        }
+    }, [anime?.id, trackAnimeView, onClick])
 
     const Meta = () => (
         <div data-episode-card-info-container className="relative z-[3] w-full space-y-0">
@@ -154,7 +166,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                         className,
                         containerClass,
                     )}
-                    onClick={onClick}
+                    onClick={handleCardClick}
                     data-episode-card
                     data-episode-number={episodeNumber}
                     data-media-id={anime?.id}
@@ -172,7 +184,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                             placeholder={imageShimmer(700, 475)}
                             sizes="20rem"
                             className={cn(
-                                "object-cover rounded-lg object-center transition lg:group-hover/episode-card:scale-105 duration-200",
+                                "object-cover rounded-lg object-center transition duration-200",
                                 imageClass,
                             )}
                         /> : <div
@@ -226,7 +238,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                                 placeholder={imageShimmer(700, 475)}
                                 sizes="20rem"
                                 className={cn(
-                                    "object-cover rounded-lg object-center transition lg:group-hover/episode-card:scale-105 duration-200",
+                                    "object-cover rounded-lg object-center transition duration-200",
                                     imageClass,
                                 )}
                             />}

@@ -136,7 +136,8 @@ export function getZodParsedDescription<T extends {
     [p: string]: any
 }>(schema: z.AnyZodObject, key: string): T | undefined {
     const obj = getZodDescriptions(schema)
-    const parsedDescription: any = (typeof obj[key] === "string" || obj[key] instanceof String) ? JSON.parse(obj[key]) : undefined
+    const value = obj[key]
+    const parsedDescription: any = (typeof value === "string") ? JSON.parse(value as string) : undefined
     if (parsedDescription.constructor == Object) {
         return parsedDescription as T
     }

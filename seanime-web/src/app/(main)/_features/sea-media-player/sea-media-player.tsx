@@ -58,7 +58,7 @@ import Image from "next/image"
 import React from "react"
 
 export type SeaMediaPlayerProps = {
-    url?: string | { src: string, type: string }
+    url?: string | { src: string, type: string } | any
     poster?: string
     isLoading?: boolean
     isPlaybackError?: string
@@ -528,7 +528,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                         ref={playerRef}
                         autoPlay={autoPlay}
                         crossOrigin
-                        src={url}
+                        src={url as any}
                         poster={poster}
                         aspectRatio="16/9"
                         controlsDelay={discreteControls ? 500 : undefined}
@@ -630,7 +630,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                             spinner={
                                 <div className="w-16 h-16 lg:w-[100px] lg:h-[100px] relative">
                                     <Image
-                                        src="/logo_2.png"
+                                        src="/logo.png"
                                         alt="Loading..."
                                         priority
                                         fill

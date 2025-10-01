@@ -29,10 +29,19 @@ export function useHandleOnlinestreamProviderExtensions() {
 
     return {
         providerExtensions: providerExtensions ?? [],
-        providerExtensionOptions: (providerExtensions ?? []).map(provider => ({
-            label: provider.name,
-            value: provider.id,
-        })).sort((a, b) => a.label.localeCompare(b.label)),
+        providerExtensionOptions: (providerExtensions ?? [])
+            .map(provider => ({
+                label: provider.name,
+                value: provider.id,
+                isAnicrush: provider.id === 'anicrush'
+            }))
+            .sort((a, b) => {
+                // Priorizar Anicrush primeiro
+                if (a.isAnicrush) return -1
+                if (b.isAnicrush) return 1
+                // Depois ordenar alfabeticamente
+                return a.label.localeCompare(b.label)
+            })
     }
 
 }

@@ -1,0 +1,391 @@
+package main
+
+import (
+"database/sql"
+"encoding/json"
+"log"
+"net/http"
+"net/url"
+"strings"
+"time"
+
+_ "github.com/glebarez/sqlite"
+)
+
+const dbPath = "/root/seanime-project/data-dev/seanime.db"
+const anilistClientID = "15168"
+
+type AdminStats struct {
+TotalVisitors  int `json:"totalVisitors"`
+UniqueVisitors int `json:"uniqueVisitors"`
+PageViews      int `json:"pageViews"`
+AvgSession     int `json:"avgSession"`
+}
+
+type VisitorLog struct {
+IPAddress       string    `json:"ip_address"`
+UserAgent       string    `json:"user_agent"`
+PageVisited     string    `json:"page_visited"`
+VisitTime       time.Time `json:"visit_time"`
+SessionDuration int       `json:"session_duration"`
+Referrer        string    `json:"referrer"`
+}
+
+type AdminMessage struct {
+ID        string    `json:"id"`
+Title     string    `json:"title"`
+Content   string    `json:"content"`
+Type      string    `json:"type"`
+IsActive  bool      `json:"isActive"`
+CreatedAt time.Time `json:"createdAt"`
+}
+
+type ContactMessage struct {
+ID        string    `json:"id"`
+Name      string    `json:"name"`
+Email     string    `json:"email"`
+Message   string    `json:"message"`
+IP        string    `json:"ip"`
+Page      string    `json:"page"`
+CreatedAt time.Time `json:"createdAt"`
+}
+
+func openDB() (*sql.DB, error) { return sql.Open("sqlite", dbPath) }
+
+func getIP(r *http.Request) string {
+ip := r.Header.Get("X-Forwarded-For")
+if ip == "" {
+ip = r.Header.Get("X-Real-IP")
+}
+if ip == "" {
+ip = r.RemoteAddr
+}
+if strings.Contains(ip, ":") {
+ip = strings.Split(ip, ":")[0]
+}
+return ip
+}
+
+func cors(h http.HandlerFunc) http.HandlerFunc {
+return func(w http.ResponseWriter, r *http.Request) {
+w.Header().Set("Access-Control-Allow-Origin", "*")
+w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+w.Header().Set("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+if r.Method == http.MethodOptions {
+w.WriteHeader(http.StatusNoContent)
+return
+}
+h.ServeHTTP(w, r)
+}
+}
+
+func createTables() {
+db, err := openDB()
+if err != nil {
+log.Println("db:", err)
+return
+}
+defer db.Close()
+
+db.Exec(`CREATE TABLE IF NOT EXISTS visitor_logs (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+ip_address TEXT, user_agent TEXT, page_visited TEXT,
+visit_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+session_duration INTEGER DEFAULT 0,
+country TEXT, city TEXT, referrer TEXT
+)`)
+
+db.Exec(`CREATE TABLE IF NOT EXISTS admin_messages (
+id TEXT PRIMARY KEY, title TEXT, content TEXT, type TEXT DEFAULT 'info',
+is_active INTEGER DEFAULT 1, created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)`)
+
+db.Exec(`CREATE TABLE IF NOT EXISTS contact_messages (
+id TEXT PRIMARY KEY, name TEXT, email TEXT, message TEXT, ip TEXT, page TEXT,
+created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)`)
+}
+
+func qStats(db *sql.DB) AdminStats {
+var s AdminStats
+db.QueryRow(`SELECT COUNT(DISTINCT ip_address||'|'||strftime('%Y-%m-%d',visit_time)) FROM visitor_logs`).Scan(&s.TotalVisitors)
+db.QueryRow(`SELECT COUNT(DISTINCT ip_address) FROM visitor_logs`).Scan(&s.UniqueVisitors)
+db.QueryRow(`SELECT COUNT(*) FROM visitor_logs`).Scan(&s.PageViews)
+db.QueryRow(`SELECT COALESCE(AVG(session_duration),0) FROM visitor_logs`).Scan(&s.AvgSession)
+return s
+}
+
+func qDaily(db *sql.DB) []map[string]any {
+rows, _ := db.Query(`SELECT strftime('%Y-%m-%d',visit_time) d, COUNT(*) c FROM visitor_logs GROUP BY d ORDER BY d DESC LIMIT 7`)
+defer rows.Close()
+var out []map[string]any
+for rows.Next() {
+var d string
+var c int
+rows.Scan(&d, &c)
+out = append(out, map[string]any{"day": d, "count": c})
+}
+return out
+}
+
+func qTopPages(db *sql.DB) []map[string]any {
+rows, _ := db.Query(`SELECT page_visited, COUNT(*) c FROM visitor_logs GROUP BY page_visited ORDER BY c DESC LIMIT 10`)
+defer rows.Close()
+var out []map[string]any
+for rows.Next() {
+var p string
+var c int
+rows.Scan(&p, &c)
+out = append(out, map[string]any{"page": p, "count": c})
+}
+return out
+}
+
+func qTopVisitors(db *sql.DB) []map[string]any {
+rows, _ := db.Query(`SELECT ip_address, COUNT(*) c FROM visitor_logs GROUP BY ip_address ORDER BY c DESC LIMIT 10`)
+defer rows.Close()
+var out []map[string]any
+for rows.Next() {
+var ip string
+var c int
+rows.Scan(&ip, &c)
+out = append(out, map[string]any{"ip": ip, "visits": c})
+}
+return out
+}
+
+func qVisitors(db *sql.DB) []VisitorLog {
+rows, _ := db.Query(`SELECT ip_address,user_agent,page_visited,visit_time,session_duration,referrer FROM visitor_logs ORDER BY visit_time DESC LIMIT 100`)
+defer rows.Close()
+var list []VisitorLog
+for rows.Next() {
+var v VisitorLog
+rows.Scan(&v.IPAddress, &v.UserAgent, &v.PageVisited, &v.VisitTime, &v.SessionDuration, &v.Referrer)
+list = append(list, v)
+}
+return list
+}
+
+func statsHandler(w http.ResponseWriter, r *http.Request)          { db, _ := openDB(); defer db.Close(); w.Header().Set("Content-Type", "application/json"); json.NewEncoder(w).Encode(qStats(db)) }
+func statsDailyHandler(w http.ResponseWriter, r *http.Request)     { db, _ := openDB(); defer db.Close(); w.Header().Set("Content-Type", "application/json"); json.NewEncoder(w).Encode(qDaily(db)) }
+func visitorsHandler(w http.ResponseWriter, r *http.Request)       { db, _ := openDB(); defer db.Close(); w.Header().Set("Content-Type", "application/json"); json.NewEncoder(w).Encode(map[string]any{"visitors": qVisitors(db)}) }
+func topPagesHandler(w http.ResponseWriter, r *http.Request)       { db, _ := openDB(); defer db.Close(); w.Header().Set("Content-Type", "application/json"); json.NewEncoder(w).Encode(qTopPages(db)) }
+func topVisitorsHandler(w http.ResponseWriter, r *http.Request)    { db, _ := openDB(); defer db.Close(); w.Header().Set("Content-Type", "application/json"); json.NewEncoder(w).Encode(qTopVisitors(db)) }
+
+func messagesHandler(w http.ResponseWriter, r *http.Request) {
+db, _ := openDB(); defer db.Close()
+w.Header().Set("Content-Type", "application/json")
+switch r.Method {
+case http.MethodGet:
+rows, _ := db.Query(`SELECT id,title,content,type,is_active,created_at FROM admin_messages WHERE is_active=1 ORDER BY created_at DESC`)
+defer rows.Close()
+var list []AdminMessage
+for rows.Next() {
+var m AdminMessage
+var a int
+rows.Scan(&m.ID, &m.Title, &m.Content, &m.Type, &a, &m.CreatedAt)
+m.IsActive = a == 1
+list = append(list, m)
+}
+json.NewEncoder(w).Encode(list)
+case http.MethodPost:
+var m AdminMessage
+if json.NewDecoder(r.Body).Decode(&m) != nil || strings.TrimSpace(m.Content) == "" {
+http.Error(w, "bad json", 400)
+return
+}
+if m.Type == "" { m.Type = "info" }
+m.ID = time.Now().Format("20060102150405")
+m.CreatedAt = time.Now()
+if _, err := db.Exec(`INSERT INTO admin_messages (id,title,content,type,is_active,created_at) VALUES (?,?,?,?,1,?)`,
+m.ID, m.Title, m.Content, m.Type, m.CreatedAt); err != nil {
+http.Error(w, "insert error", 500)
+return
+}
+json.NewEncoder(w).Encode(map[string]string{"status": "ok", "id": m.ID})
+default:
+http.Error(w, "method not allowed", 405)
+}
+}
+
+func messagesDeactivateHandler(w http.ResponseWriter, r *http.Request) {
+var b struct{ ID string `json:"id"` }
+if json.NewDecoder(r.Body).Decode(&b) != nil || b.ID == "" {
+http.Error(w, "bad json", 400)
+return
+}
+db, _ := openDB(); defer db.Close()
+if _, err := db.Exec(`UPDATE admin_messages SET is_active=0 WHERE id=?`, b.ID); err != nil {
+http.Error(w, "update error", 500)
+return
+}
+w.Header().Set("Content-Type", "application/json")
+json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+}
+
+func contactHandler(w http.ResponseWriter, r *http.Request) {
+var b struct {
+Name, Email, Message, Page string
+}
+if json.NewDecoder(r.Body).Decode(&b) != nil || strings.TrimSpace(b.Message) == "" {
+http.Error(w, "bad json", 400)
+return
+}
+db, _ := openDB(); defer db.Close()
+if _, err := db.Exec(`INSERT INTO contact_messages (id,name,email,message,ip,page,created_at) VALUES (?,?,?,?,?,?,?)`,
+time.Now().Format("20060102150405"), b.Name, b.Email, b.Message, getIP(r), b.Page, time.Now()); err != nil {
+http.Error(w, "insert error", 500)
+return
+}
+w.Header().Set("Content-Type", "application/json")
+json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+}
+
+func contactsListHandler(w http.ResponseWriter, r *http.Request) {
+db, _ := openDB(); defer db.Close()
+rows, _ := db.Query(`SELECT id,name,email,message,ip,page,created_at FROM contact_messages ORDER BY created_at DESC LIMIT 200`)
+defer rows.Close()
+var out []ContactMessage
+for rows.Next() {
+var c ContactMessage
+rows.Scan(&c.ID, &c.Name, &c.Email, &c.Message, &c.IP, &c.Page, &c.CreatedAt)
+out = append(out, c)
+}
+w.Header().Set("Content-Type", "application/json")
+json.NewEncoder(w).Encode(out)
+}
+
+func heartbeatHandler(w http.ResponseWriter, r *http.Request) {
+var b struct{ Duration int `json:"duration"`; Page string `json:"page"` }
+_ = json.NewDecoder(r.Body).Decode(&b)
+db, _ := openDB(); defer db.Close()
+db.Exec(`UPDATE visitor_logs SET session_duration=MAX(session_duration, ?) WHERE id=(SELECT id FROM visitor_logs WHERE ip_address=? ORDER BY visit_time DESC LIMIT 1)`, b.Duration/60, getIP(r))
+w.WriteHeader(http.StatusNoContent)
+}
+
+func anilistLoginHandler(w http.ResponseWriter, r *http.Request) {
+scheme := r.Header.Get("X-Forwarded-Proto"); if scheme == "" { scheme = "https" }
+host := r.Header.Get("X-Forwarded-Host");  if host   == "" { host   = "newnarutoragnarok.site" }
+cb := scheme + "://" + host + "/auth/callback"
+u := "https://anilist.co/api/v2/oauth/authorize?response_type=token&client_id=" + anilistClientID + "&redirect_uri=" + url.QueryEscape(cb)
+http.Redirect(w, r, u, http.StatusFound)
+}
+
+func sseHandler(w http.ResponseWriter, r *http.Request) {
+w.Header().Set("Content-Type", "text/event-stream")
+w.Header().Set("Cache-Control", "no-cache")
+w.Header().Set("Connection", "keep-alive")
+flusher, ok := w.(http.Flusher); if !ok { http.Error(w, "stream unsupported", 500); return }
+
+send := func(event string, v any) {
+b, _ := json.Marshal(v)
+w.Write([]byte("event: " + event + "\n"))
+w.Write([]byte("data: "))
+w.Write(b)
+w.Write([]byte("\n\n"))
+flusher.Flush()
+}
+
+db, _ := openDB(); defer db.Close()
+send("stats", qStats(db))
+send("daily", qDaily(db))
+send("topPages", qTopPages(db))
+send("topVisitors", qTopVisitors(db))
+send("visitors", map[string]any{"visitors": qVisitors(db)})
+
+ticker := time.NewTicker(5 * time.Second)
+defer ticker.Stop()
+notify := r.Context().Done()
+for {
+select {
+case <-ticker.C:
+send("stats", qStats(db))
+send("topPages", qTopPages(db))
+send("topVisitors", qTopVisitors(db))
+case <-notify:
+return
+}
+}
+}
+
+func main() {
+createTables()
+http.HandleFunc("/api/admin/stats", cors(statsHandler))
+http.HandleFunc("/api/admin/stats/daily", cors(statsDailyHandler))
+http.HandleFunc("/api/admin/visitors", cors(visitorsHandler))
+http.HandleFunc("/api/admin/top-pages", cors(topPagesHandler))
+http.HandleFunc("/api/admin/top-visitors", cors(topVisitorsHandler))
+http.HandleFunc("/api/admin/messages", cors(messagesHandler))
+http.HandleFunc("/api/admin/messages/deactivate", cors(messagesDeactivateHandler))
+http.HandleFunc("/api/admin/contact", cors(contactHandler))
+http.HandleFunc("/api/admin/contacts", cors(contactsListHandler))
+http.HandleFunc("/api/admin/heartbeat", cors(heartbeatHandler))
+http.HandleFunc("/api/admin/anilist/login", cors(anilistLoginHandler))
+http.HandleFunc("/api/admin/sse", cors(sseHandler))
+
+log.Println("Admin API Server starting on port 43212...")
+_ = http.ListenAndServe("127.0.0.1:43212", nil)
+}
+
+// GET /api/admin/visitors/by-ip?ip=1.2.3.4
+func visitorsByIPHandler(w http.ResponseWriter, r *http.Request) {
+ip := strings.TrimSpace(r.URL.Query().Get("ip"))
+if ip == "" { http.Error(w, "ip required", 400); return }
+db, _ := openDB(); defer db.Close()
+rows, _ := db.Query(`SELECT ip_address,user_agent,page_visited,visit_time,session_duration,referrer,country,city
+                     FROM visitor_logs WHERE ip_address=? ORDER BY visit_time DESC LIMIT 200`, ip)
+defer rows.Close()
+type Row struct {
+IP string `json:"ip"`; UA string `json:"ua"`; Page string `json:"page"`
+When time.Time `json:"when"`; Min int `json:"min"`
+Ref string `json:"ref"`; Country string `json:"country"`; City string `json:"city"`
+}
+var out []Row
+for rows.Next(){
+var ipA,ua,page,ref,country,city string; var when time.Time; var min int
+rows.Scan(&ipA,&ua,&page,&when,&min,&ref,&country,&city)
+out = append(out, Row{IP:ipA,UA:ua,Page:page,When:when,Min:min,Ref:ref,Country:country,City:city})
+}
+w.Header().Set("Content-Type","application/json")
+_ = json.NewEncoder(w).Encode(out)
+}
+
+// GET /api/admin/top-countries  -> [{"country":"Portugal","count":12},{"country":"Brazil","count":9}]
+func topCountriesHandler(w http.ResponseWriter, r *http.Request) {
+db,_ := openDB(); defer db.Close()
+rows, _ := db.Query(`SELECT IFNULL(country,''), COUNT(*) c FROM visitor_logs GROUP BY country ORDER BY c DESC LIMIT 20`)
+defer rows.Close()
+type C struct { Country string `json:"country"`; Count int `json:"count"` }
+var out []C
+for rows.Next(){ var nm string; var c int; rows.Scan(&nm,&c); if nm!="" { out=append(out,C{Country:nm,Count:c}) } }
+w.Header().Set("Content-Type","application/json")
+_ = json.NewEncoder(w).Encode(out)
+}
+
+// GET /api/admin/visitors/by-ip?ip=1.2.3.4
+func visitorsByIPHandler(w http.ResponseWriter, r *http.Request) {
+ip := strings.TrimSpace(r.URL.Query().Get("ip"))
+if ip == "" { http.Error(w, "ip required", 400); return }
+db,_ := openDB(); defer db.Close()
+rows,_ := db.Query(`SELECT ip_address,user_agent,page_visited,visit_time,session_duration,referrer,country,city
+                    FROM visitor_logs WHERE ip_address=? ORDER BY visit_time DESC LIMIT 200`, ip)
+defer rows.Close()
+type Row struct{ IP,UA,Page,Ref,Country,City string; When time.Time; Min int }
+var out []Row
+for rows.Next(){ var ipA,ua,page,ref,country,city string; var when time.Time; var min int
+rows.Scan(&ipA,&ua,&page,&when,&min,&ref,&country,&city)
+out = append(out, Row{IP:ipA,UA:ua,Page:page,When:when,Min:min,Ref:ref,Country:country,City:city})
+}
+w.Header().Set("Content-Type","application/json"); _ = json.NewEncoder(w).Encode(out)
+}
+
+// GET /api/admin/top-countries
+func topCountriesHandler(w http.ResponseWriter, r *http.Request) {
+db,_ := openDB(); defer db.Close()
+rows,_ := db.Query(`SELECT IFNULL(country,''), COUNT(*) FROM visitor_logs GROUP BY country ORDER BY 2 DESC LIMIT 20`)
+defer rows.Close()
+type C struct{ Country string `json:"country"`; Count int `json:"count"` }
+var out []C
+for rows.Next(){ var nm string; var c int; rows.Scan(&nm,&c); if nm!="" { out=append(out,C{Country:nm,Count:c}) } }
+w.Header().Set("Content-Type","application/json"); _ = json.NewEncoder(w).Encode(out)
+}

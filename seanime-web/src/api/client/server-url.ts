@@ -6,6 +6,16 @@ function devOrProd(dev: string, prod: string): string {
 }
 
 export function getServerBaseUrl(removeProtocol: boolean = false): string {
+    // Environment override for API base URL (e.g., https://newnarutoragnarok.site)
+    const envBase = (process.env.NEXT_PUBLIC_API_BASE_URL || "").trim()
+    if (envBase) {
+        let ret = envBase
+        if (removeProtocol) {
+            ret = ret.replace("http://", "").replace("https://", "")
+        }
+        return ret
+    }
+
     if (__isDesktop__) {
         let ret = devOrProd(`http://127.0.0.1:${__DEV_SERVER_PORT}`, "http://127.0.0.1:43211")
         if (removeProtocol) {
@@ -31,6 +41,15 @@ export function getServerBaseUrl(removeProtocol: boolean = false): string {
     //     }
     //     return ret
     // }
+
+    // For development, always use localhost unless explicitly overridden
+    if (process.env.NODE_ENV === "development" && !envBase) {
+        let ret = `http://127.0.0.1:${__DEV_SERVER_PORT}`
+        if (removeProtocol) {
+            ret = ret.replace("http://", "").replace("https://", "")
+        }
+        return ret
+    }
 
     let ret = typeof window !== "undefined"
         ? (`${window?.location?.protocol}//` + devOrProd(`${window?.location?.hostname}:${__DEV_SERVER_PORT}`, window?.location?.host))

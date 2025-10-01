@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://anipulse.tk/sitemap.xml
+
+# Disallow admin pages only
+Disallow: /admin
+Disallow: /admin/
+
+# Allow all content for users
+Allow: /discover
+Allow: /schedule
+Allow: /contact
+Allow: /anilist
+Allow: /entry/
+Allow: /onlinestream/
+
+# Crawl delay
+Crawl-delay: 1

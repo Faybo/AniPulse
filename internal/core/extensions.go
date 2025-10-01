@@ -4,7 +4,6 @@ import (
 	"seanime/internal/extension"
 	"seanime/internal/extension_repo"
 	manga_providers "seanime/internal/manga/providers"
-	onlinestream_providers "seanime/internal/onlinestream/providers"
 	"seanime/internal/torrents/animetosho"
 	"seanime/internal/torrents/nyaa"
 	"seanime/internal/torrents/seadex"
@@ -133,18 +132,85 @@ func LoadExtensions(extensionRepository *extension_repo.Repository, logger *zero
 	//	Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/hianime.png",
 	//}, onlinestream_providers.NewZoro(logger))
 
-	extensionRepository.ReloadBuiltInExtension(extension.Extension{
-		ID:          "animepahe",
-		Name:        "Animepahe",
-		Version:     "",
-		ManifestURI: "builtin",
-		Language:    extension.LanguageTypescript,
-		Type:        extension.TypeOnlinestreamProvider,
-		Author:      "Seanime",
-		Lang:        "en",
-		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/animepahe.png",
-		Payload:     onlinestream_providers.AnimepahePayload,
-	}, nil)
+	// Animepahe removido - usando Anicrush como principal
+	// extensionRepository.ReloadBuiltInExtension(extension.Extension{
+	// 	ID:          "animepahe",
+	// 	Name:        "Animepahe",
+	// 	Version:     "",
+	// 	ManifestURI: "builtin",
+	// 	Language:    extension.LanguageTypescript,
+	// 	Type:        extension.TypeOnlinestreamProvider,
+	// 	Author:      "Seanime",
+	// 	Lang:        "en",
+	// 	Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/animepahe.png",
+	// 	Payload:     onlinestream_providers.AnimepahePayload,
+	// }, nil)
+
+	// Torrent providers desabilitados - mantendo apenas online streaming
+	// extensionRepository.ReloadBuiltInExtension(extension.Extension{
+	// 	ID:          "nyaa",
+	// 	Name:        "Nyaa",
+	// 	Version:     "",
+	// 	ManifestURI: "builtin",
+	// 	Language:    extension.LanguageGolang,
+	// 	Type:        extension.TypeTorrentProvider,
+	// 	Author:      "Seanime",
+	// 	Lang:        "en",
+	// 	Icon:        "",
+	// 	Payload:     torrent_providers.NyaaPayload,
+	// }, nil)
+
+	// extensionRepository.ReloadBuiltInExtension(extension.Extension{
+	// 	ID:          "nyaa-non-eng",
+	// 	Name:        "Nyaa (non-English)",
+	// 	Version:     "",
+	// 	ManifestURI: "builtin",
+	// 	Language:    extension.LanguageGolang,
+	// 	Type:        extension.TypeTorrentProvider,
+	// 	Author:      "Seanime",
+	// 	Lang:        "en",
+	// 	Icon:        "",
+	// 	Payload:     torrent_providers.NyaaNonEngPayload,
+	// }, nil)
+
+	// extensionRepository.ReloadBuiltInExtension(extension.Extension{
+	// 	ID:          "nyaa-sukebei",
+	// 	Name:        "Nyaa Sukebei",
+	// 	Version:     "",
+	// 	ManifestURI: "builtin",
+	// 	Language:    extension.LanguageGolang,
+	// 	Type:        extension.TypeTorrentProvider,
+	// 	Author:      "Seanime",
+	// 	Lang:        "en",
+	// 	Icon:        "",
+	// 	Payload:     torrent_providers.NyaaSukebeiPayload,
+	// }, nil)
+
+	// extensionRepository.ReloadBuiltInExtension(extension.Extension{
+	// 	ID:          "animetosho",
+	// 	Name:        "AnimeTosho",
+	// 	Version:     "",
+	// 	ManifestURI: "builtin",
+	// 	Language:    extension.LanguageGolang,
+	// 	Type:        extension.TypeTorrentProvider,
+	// 	Author:      "Seanime",
+	// 	Lang:        "en",
+	// 	Icon:        "",
+	// 	Payload:     torrent_providers.AnimeToshoPayload,
+	// }, nil)
+
+	// extensionRepository.ReloadBuiltInExtension(extension.Extension{
+	// 	ID:          "seadex",
+	// 	Name:        "SeaDex",
+	// 	Version:     "",
+	// 	ManifestURI: "builtin",
+	// 	Language:    extension.LanguageGolang,
+	// 	Type:        extension.TypeTorrentProvider,
+	// 	Author:      "Seanime",
+	// 	Lang:        "en",
+	// 	Icon:        "",
+	// 	Payload:     torrent_providers.SeaDexPayload,
+	// }, nil)
 
 	//
 	// Built-in torrent providers

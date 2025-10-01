@@ -117,7 +117,7 @@ export function GlobalSearch() {
                                                     placeholder="Search..."
                                                     onChange={(event) => setInputValue(event.target.value)}
                                                 />
-                                                <div className="block fixed lg:absolute top-2 right-2 z-1">
+                                                <div className="block fixed lg:absolute top-16 right-2 z-1">
                                                     <Select
                                                         fieldClass="w-fit"
                                                         value={type}

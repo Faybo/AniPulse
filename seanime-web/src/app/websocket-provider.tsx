@@ -103,7 +103,12 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
                 }
             }
 
-            const wsUrl = `${document.location.protocol == "https:" ? "wss" : "ws"}://${getServerBaseUrl(true)}/events`
+            const baseHost = getServerBaseUrl(true)
+            const envBase = (process.env.NEXT_PUBLIC_API_BASE_URL || "").trim()
+            const wsScheme = envBase
+                ? (envBase.startsWith("https") ? "wss" : "ws")
+                : (document.location.protocol == "https:" ? "wss" : "ws")
+            const wsUrl = `${wsScheme}://${baseHost}/events`
             const clientId = cookies["Seanime-Client-Id"] || uuidv4()
 
             try {

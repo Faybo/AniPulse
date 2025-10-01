@@ -30,7 +30,6 @@
   </a>
 </div>
 
-
 <h5 align="center">
 Leave a star if you like the project! ⭐️
 </h5>
@@ -39,8 +38,9 @@ Leave a star if you like the project! ⭐️
 
 Seanime is a **media server** with a **web interface** and **desktop app** for watching anime, managing your local library, and reading manga.
 
-## Features
+$env:CGO_ENABLED = 0; go run main.go --datadir="D:\projeto\seanime-project\data-dev"
 
+## Features
 
 - Cross-platform web interface and desktop app
 - Complete AniList integration (browse, manage, score, discover, etc.)
@@ -87,8 +87,8 @@ Consider sponsoring or sharing the project if you want to see more features impl
 The maintenance of this project is made possible by the sponsors.
 
 <p align="center">
-<!-- real-sponsors --><a href="https://github.com/tobenaii"><img src="https:&#x2F;&#x2F;github.com&#x2F;tobenaii.png" width="60px" alt="User avatar: tobenaii" /></a><!-- real-sponsors -->
-<!-- real-sponsors --><a href="https://github.com/TorBox-App"><img src="https:&#x2F;&#x2F;github.com&#x2F;TorBox-App.png" width="60px" alt="User avatar: TorBox-App" /></a><!-- real-sponsors -->
+<!-- real-sponsors --><a href="https://github.com/tobenaii"><img src="https://github.com/tobenaii.png" width="60px" alt="User avatar: tobenaii" /></a><!-- real-sponsors -->
+<!-- real-sponsors --><a href="https://github.com/TorBox-App"><img src="https://github.com/TorBox-App.png" width="60px" alt="User avatar: TorBox-App" /></a><!-- real-sponsors -->
 </p>
 
 ## Development and Build

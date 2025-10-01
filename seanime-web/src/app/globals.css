@@ -280,7 +280,9 @@ pre {
 
 .halo:after {
     opacity: .1;
-    background-image: radial-gradient(at 27% 37%, #fd3a67 0, transparent 50%), radial-gradient(at 97% 21%, #9772fe 0, transparent 70%), radial-gradient(at 52% 99%, #fd3a4e 0, transparent 50%), radial-gradient(at 10% 29%, #fc5ab0 0, transparent 50%), radial-gradient(at 97% 96%, #e4c795 0, transparent 50%), radial-gradient(at 33% 50%, #8ca8e8 0, transparent 50%), radial-gradient(at 79% 53%, #eea5ba 0, transparent 50%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
     position: absolute;
     content: "";
     width: 100%;
@@ -294,7 +296,7 @@ pre {
 
 .halo-2:after {
     opacity: .1;
-    background-image: radial-gradient(at 27% 37%, #fd3a67 0, transparent 30%), radial-gradient(at 97% 21%, #9772fe 0, transparent 70%), radial-gradient(at 52% 99%, #fd3a4e 0, transparent 20%), radial-gradient(at 10% 29%, #fc5ab0 0, transparent 20%), radial-gradient(at 97% 96%, #e4c795 0, transparent 20%), radial-gradient(at 33% 50%, #8ca8e8 0, transparent 50%), radial-gradient(at 79% 53%, #eea5ba 0, transparent 20%);
+    background-image: radial-gradient(at 27% 37%, #ff69b4 0, transparent 30%), radial-gradient(at 97% 21%, #ff1493 0, transparent 70%), radial-gradient(at 52% 99%, #ff69b4 0, transparent 20%), radial-gradient(at 10% 29%, #ffb6c1 0, transparent 20%), radial-gradient(at 97% 96%, #ffc0cb 0, transparent 20%), radial-gradient(at 33% 50%, #ff69b4 0, transparent 50%), radial-gradient(at 79% 53%, #ffb6c1 0, transparent 20%);
     position: absolute;
     content: "";
     width: 100%;
@@ -952,4 +954,57 @@ media-preview-chapter-display {
     image-rendering: -moz-crisp-edges;
     image-rendering: -webkit-crisp-edges;
     image-rendering: crisp-edges;
+}
+
+/* Animação do gradiente */
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Estilos modernos para cards */
+.modern-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.modern-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Botões modernos */
+.modern-button {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.modern-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+/* Efeito de vidro */
+.glass-effect {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
 }

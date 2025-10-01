@@ -2,12 +2,16 @@ package core
 
 import (
 	"embed"
+	"fmt"
 	"io/fs"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"seanime/internal/constants"
 
 	"github.com/goccy/go-json"
 	"github.com/labstack/echo/v4"
@@ -48,6 +52,55 @@ func NewEchoApp(app *App, webFS *embed.FS) *echo.Echo {
 			return false // Continue to the filesystem handler
 		},
 	}))
+
+	// Ensure visitor_logs table exists (lightweight analytics)
+	{
+		_ = app.Database.Gorm().Exec(`
+			CREATE TABLE IF NOT EXISTS visitor_logs (
+				id INTEGER PRIMARY KEY AUTOINCREMENT,
+				ip_address TEXT,
+				user_agent TEXT,
+				page_visited TEXT,
+				visit_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+				session_duration INTEGER DEFAULT 0,
+				country TEXT,
+				city TEXT,
+				referrer TEXT
+			)
+		`).Error
+	}
+
+	// Protect /admin and /admin.html by IP allowlist; return 404 if unauthorized
+	e.Pre(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			p := c.Request().URL.Path
+			if p == "/admin" || p == "/admin.html" {
+				if !isIPAllowed(c.RealIP()) {
+					return c.NoContent(http.StatusNotFound)
+				}
+			}
+			return next(c)
+		}
+	})
+
+	// Visitor tracking for non-API/non-static routes
+	e.Pre(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			u := c.Request().URL
+			path := u.Path
+			if strings.HasPrefix(path, "/api/") || strings.HasPrefix(path, "/events") || strings.HasPrefix(path, "/assets") || strings.HasPrefix(path, "/manga-downloads") || strings.HasPrefix(path, "/offline-assets") || strings.HasPrefix(path, "/_next") || path == "/favicon.ico" {
+				return next(c)
+			}
+			// Insert log (fire and forget)
+			go func(ip, ua, page, ref string) {
+				err := app.Database.Gorm().Exec(`INSERT INTO visitor_logs (ip_address, user_agent, page_visited, referrer) VALUES (?,?,?,?)`, ip, ua, page, ref).Error
+				if err != nil {
+					_ = fmt.Errorf("visitor log insert: %w", err)
+				}
+			}(c.RealIP(), c.Request().UserAgent(), path, c.Request().Referer())
+			return next(c)
+		}
+	})
 
 	app.Logger.Info().Msgf("app: Serving embedded web interface")
 
@@ -90,4 +143,29 @@ func RunEchoServer(app *App, e *echo.Echo) {
 
 	time.Sleep(100 * time.Millisecond)
 	app.Logger.Info().Msg("app: Seanime started at " + app.Config.GetServerURI())
+}
+
+// isIPAllowed checks if the incoming IP is allowed to access admin resources.
+// Allows localhost by default and uses ADMIN_ALLOWED_IPS env (comma-separated)
+// for additional IPs.
+func isIPAllowed(ip string) bool {
+	if ip == "127.0.0.1" || ip == "::1" || ip == "" {
+		return true
+	}
+	// 1) Check env override
+	if env := strings.TrimSpace(os.Getenv("ADMIN_ALLOWED_IPS")); env != "" {
+		for _, s := range strings.Split(env, ",") {
+			if ip == strings.TrimSpace(s) {
+				return true
+			}
+		}
+		return false
+	}
+	// 2) Fallback to constants.AdminAllowedIPs
+	for _, s := range constants.AdminAllowedIPs {
+		if ip == strings.TrimSpace(s) {
+			return true
+		}
+	}
+	return false
 }

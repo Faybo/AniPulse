@@ -183,6 +183,9 @@ const config: Config = {
             highlighted: "highlighted",
         },
         extend: {
+            fontFamily: {
+                'slab-serif': ['"Roboto Slab"', 'serif'],
+            },
             screens: {
                 "3xl": "1600px",
                 "4xl": "1800px",

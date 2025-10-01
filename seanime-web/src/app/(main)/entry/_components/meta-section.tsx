@@ -32,7 +32,6 @@ import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
 import React from "react"
 import { IoInformationCircle } from "react-icons/io5"
 import { MdOutlineConnectWithoutContact } from "react-icons/md"
-import { SiAnilist } from "react-icons/si"
 import { useNakamaStatus } from "../../_features/nakama/nakama-manager"
 import { PluginAnimePageButtons } from "../../_features/plugin/actions/plugin-actions"
 
@@ -72,9 +71,6 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
 
             <div className="flex items-center gap-4 justify-center w-full lg:w-fit" data-anime-meta-section-action-buttons-inner-container>
 
-                <SeaLink href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">
-                    <IconButton intent="gray-link" className="px-0" icon={<SiAnilist className="text-lg" />} />
-                </SeaLink>
 
                 {!!entry?.media?.trailer?.id && <TrailerModal
                     trailerId={entry?.media?.trailer?.id} trigger={
@@ -169,34 +165,11 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
 
                     {ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && <ActionButtons />}
 
-                    {(
-                        entry.media.status !== "NOT_YET_RELEASED"
-                        && currentView === "library"
-                        && hasTorrentProvider
-                        && (
-                            serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE
-                            || hasDebridService
-                        )
-                        && !entry._isNakamaEntry
-                    ) && (
-                        <TorrentSearchButton
-                            entry={entry}
-                        />
-                    )}
-
                     {entry._isNakamaEntry && currentView === "library" &&
                         <div className="flex items-center gap-2 h-10 px-4 border rounded-md flex-none">
                         <MdOutlineConnectWithoutContact className="size-6 animate-pulse text-[--blue]" />
                         <span className="text-sm tracking-wide">Shared by {nakamaStatus?.hostConnectionStatus?.username}</span>
                     </div>}
-
-                    <TorrentStreamButton
-                        entry={entry}
-                    />
-
-                    <DebridStreamButton
-                        entry={entry}
-                    />
 
                     <AnimeOnlinestreamButton entry={entry} />
 

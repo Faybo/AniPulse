@@ -4,10 +4,10 @@ export const dynamic = "force-static"
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: "Seanime",
-        short_name: "Seanime",
+        name: "AniPulse",
+        short_name: "AniPulse",
         description:
-            "Self-hosted, user-friendly media server for anime and manga.",
+            "Watch your favorite anime online with high quality streaming.",
         start_url: "/",
         display: "standalone",
         background_color: "#070707",

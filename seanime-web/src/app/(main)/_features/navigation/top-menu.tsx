@@ -1,5 +1,4 @@
 "use client"
-import { useMissingEpisodeCount } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Badge } from "@/components/ui/badge"
 import { NavigationMenu, NavigationMenuProps } from "@/components/ui/navigation-menu"
@@ -18,27 +17,10 @@ export const TopMenu: React.FC<TopMenuProps> = (props) => {
 
     const pathname = usePathname()
 
-    const missingEpisodeCount = useMissingEpisodeCount()
-
     const navigationItems = useMemo<NavigationMenuProps["items"]>(() => {
 
         return [
-            {
-                href: "/",
-                // icon: IoLibrary,
-                isCurrent: pathname === "/",
-                name: "My library",
-            },
-            {
-                href: "/schedule",
-                icon: null,
-                isCurrent: pathname.startsWith("/schedule"),
-                name: "Schedule",
-                addon: missingEpisodeCount > 0 ? <Badge
-                    className="absolute top-1 right-2 h-2 w-2 p-0" size="sm"
-                    intent="alert-solid"
-                /> : undefined,
-            },
+            // Schedule removido do menu superior a pedido (ocultar "Your Schedule")
             ...[serverStatus?.settings?.library?.enableManga && {
                 href: "/manga",
                 icon: null,
@@ -58,15 +40,32 @@ export const TopMenu: React.FC<TopMenuProps> = (props) => {
                 name: serverStatus?.user?.isSimulated ? "My lists" : "AniList",
             },
         ].filter(Boolean)
-    }, [pathname, missingEpisodeCount, serverStatus?.settings?.library?.enableManga])
+    }, [pathname, serverStatus?.settings?.library?.enableManga])
 
     return (
-        <NavigationMenu
-            className="p-0 hidden lg:inline-block"
-            itemClass="text-xl"
-            items={navigationItems}
-            data-top-menu
-        />
+        <div className="flex items-center justify-between w-full">
+            {/* AniPulse Logo/Title */}
+            <div className="flex items-center">
+                <a href="/" aria-label="Go to Discover" className="outline-none focus:ring-2 focus:ring-purple-500 rounded">
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500 bg-clip-text text-transparent animate-pulse">
+                        <span className="relative">
+                            <span className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-lg blur opacity-75 animate-pulse"></span>
+                            <span className="relative bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500 bg-clip-text text-transparent font-black text-4xl tracking-wider">
+                                AniPulse
+                            </span>
+                        </span>
+                    </h1>
+                </a>
+            </div>
+
+            {/* Navigation Menu */}
+            <NavigationMenu
+                className="p-0 hidden lg:flex justify-center flex-1"
+                itemClass="text-xl"
+                items={navigationItems}
+                data-top-menu
+            />
+        </div>
     )
 
 }
