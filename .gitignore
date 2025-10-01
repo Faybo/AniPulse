@@ -4,6 +4,10 @@
 *.dll
 *.so
 *.dylib
+seanime-server
+seanime-server-linux
+admin-api-server
+*.zip
 
 # Test binary, built with `go test -c`
 *.test
