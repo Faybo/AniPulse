@@ -35,23 +35,62 @@ export function MonetagMultitag() {
 
 /**
  * Componente para o botão "Get 1h Ad-free"
- * Quando clicado, desativa os ads por 1 hora
+ * Quando clicado, mostra um interstitial e depois desativa os ads por 1 hora
  */
 export function MonetagAdFreeButton() {
     const { grantAdFree, isAdFree, remainingAdFreeMs } = useAdManager()
+    const [isWatchingAd, setIsWatchingAd] = useState(false)
+    const [countdown, setCountdown] = useState(30) // 30 segundos
 
     const handleClick = () => {
-        // Aqui você pode adicionar lógica para mostrar um video ad rewarded
-        // Por enquanto, vamos apenas conceder ad-free direto
-        grantAdFree(60) // 60 minutos
+        // Iniciar processo de "assistir ad"
+        setIsWatchingAd(true)
+        setCountdown(30)
         
-        // Tracking opcional
+        // Abrir um novo pop-under do Monetag (simula ad rewarded)
         try {
-            // @ts-ignore
-            window?.gtag?.("event", "ad_free_button_clicked")
-            // @ts-ignore
-            window?.umami?.track?.("ad_free_button_clicked")
+            // Força um clique para triggerar o Monetag
+            const dummyLink = document.createElement('a')
+            dummyLink.href = 'https://newnarutoragnarok.site'
+            dummyLink.target = '_blank'
+            document.body.appendChild(dummyLink)
+            dummyLink.click()
+            document.body.removeChild(dummyLink)
         } catch {}
+        
+        // Countdown de 30 segundos
+        const interval = setInterval(() => {
+            setCountdown((prev) => {
+                if (prev <= 1) {
+                    clearInterval(interval)
+                    setIsWatchingAd(false)
+                    grantAdFree(60) // 60 minutos
+                    
+                    // Tracking
+                    try {
+                        // @ts-ignore
+                        window?.gtag?.("event", "ad_free_granted", { method: "rewarded" })
+                        // @ts-ignore
+                        window?.umami?.track?.("ad_free_granted")
+                    } catch {}
+                    
+                    return 0
+                }
+                return prev - 1
+            })
+        }, 1000)
+    }
+
+    // Se está assistindo o ad, mostra o countdown
+    if (isWatchingAd) {
+        return (
+            <button
+                className="px-3 py-1 bg-yellow-500 text-white rounded text-xs font-medium disabled:opacity-75 animate-pulse"
+                disabled
+            >
+                ⏳ Aguarde {countdown}s...
+            </button>
+        )
     }
 
     // Se já está em ad-free, mostra o tempo restante
@@ -61,7 +100,7 @@ export function MonetagAdFreeButton() {
         
         return (
             <button
-                className="px-4 py-2 bg-green-500 text-white rounded-lg font-medium disabled:opacity-50"
+                className="px-3 py-1 bg-green-500 text-white rounded text-xs font-medium disabled:opacity-75"
                 disabled
             >
                 ✓ Ad-free: {minutes}:{seconds.toString().padStart(2, "0")}
@@ -72,7 +111,7 @@ export function MonetagAdFreeButton() {
     return (
         <button
             onClick={handleClick}
-            className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-medium hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg"
+            className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded text-xs font-medium hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg whitespace-nowrap"
         >
             🎁 Get 1h Ad-free
         </button>
