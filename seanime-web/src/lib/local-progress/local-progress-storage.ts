@@ -213,7 +213,7 @@ export function exportLocalData(): string {
  */
 export function importLocalData(jsonData: string): boolean {
     try {
-        const data = JSON.parse(jsonData)
+        const data: any = JSON.parse(jsonData)
         if (data.progress && Array.isArray(data.progress)) {
             localStorage.setItem(LOCAL_PROGRESS_KEY, JSON.stringify(data.progress))
         }
