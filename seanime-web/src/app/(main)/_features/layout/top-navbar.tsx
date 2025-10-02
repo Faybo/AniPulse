@@ -20,7 +20,7 @@ import React from "react"
 import { FaDownload } from "react-icons/fa"
 import { IoReload } from "react-icons/io5"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
-import { useAdManager } from "@/components/ads/ad-manager"
+import { MonetagAdFreeButton } from "@/components/ads/monetag-ads"
 
 type TopNavbarProps = {
     children?: React.ReactNode
@@ -36,7 +36,6 @@ export function TopNavbar(props: TopNavbarProps) {
     const serverStatus = useServerStatus()
     const isOffline = serverStatus?.isOffline
     const ts = useThemeSettings()
-    const { isAdFree, grantAdFree, remainingAdFreeMs } = useAdManager()
 
     return (
         <>
@@ -54,14 +53,8 @@ export function TopNavbar(props: TopNavbarProps) {
                         <PlaybackManagerProgressTrackingButton />
                         <ManualProgressTrackingButton />
                         <div data-top-navbar-content-separator className="flex flex-1"></div>
-                        {/* Botão para ad-free por 1h (exemplo) */}
-                        <button
-                            onClick={() => grantAdFree(60)}
-                            className="text-xs px-2 py-1 rounded bg-emerald-600 text-white hover:bg-emerald-700"
-                            title={isAdFree() ? `Sem anúncios (${Math.ceil(remainingAdFreeMs/60000)}m restantes)` : "Ver anúncio e ficar 1h sem ads"}
-                        >
-                            {isAdFree() ? `Ad‑free (${Math.ceil(remainingAdFreeMs/60000)}m)` : "Get 1h Ad‑free"}
-                        </button>
+                        {/* Botão Monetag Ad-free */}
+                        <MonetagAdFreeButton />
                         <PluginSidebarTray place="top" />
                         {!isOffline && <ChapterDownloadsButton />}
                         {!isOffline && <RefreshAnilistButton />}

@@ -7,6 +7,7 @@ import { ServerDataWrapper } from "@/app/(main)/server-data-wrapper"
 import { GoogleAnalytics } from "@/components/analytics/google-analytics"
 import Script from "next/script"
 import { AdManagerProvider } from "@/components/ads/ad-manager"
+import { MonetagMultitag } from "@/components/ads/monetag-ads"
 import React from "react"
 import TrackVisit from "@/components/analytics/track-visit"
 // Estilos globais do Vidstack para garantir layout correto dos controlos
@@ -53,6 +54,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 />
             )}
             <AdManagerProvider>
+                {/* Monetag Multitag - Pop-under + Interstitial inteligente */}
+                <MonetagMultitag />
                 <MainLayout>
                     <div data-main-layout-container className="h-auto">
                         <TopNavbar />
