@@ -21,6 +21,7 @@ import { FaDownload } from "react-icons/fa"
 import { IoReload } from "react-icons/io5"
 import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 import { MonetagAdFreeButton } from "@/components/ads/monetag-ads"
+import { AdminCodeInput } from "@/components/admin/admin-code-input"
 
 type TopNavbarProps = {
     children?: React.ReactNode
@@ -53,6 +54,8 @@ export function TopNavbar(props: TopNavbarProps) {
                         <PlaybackManagerProgressTrackingButton />
                         <ManualProgressTrackingButton />
                         <div data-top-navbar-content-separator className="flex flex-1"></div>
+                        {/* Sistema de código admin */}
+                        <AdminCodeInput />
                         {/* Botão Monetag Ad-free */}
                         <MonetagAdFreeButton />
                         <PluginSidebarTray place="top" />

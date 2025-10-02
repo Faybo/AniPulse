@@ -7,14 +7,48 @@ import { useEffect, useState } from "react"
 /**
  * Componente Monetag Multitag
  * Integrado com o sistema ad-free
+ * Remove completamente o script quando ad-free está ativo
  */
 export function MonetagMultitag() {
     const { isAdFree } = useAdManager()
-    const [shouldLoad, setShouldLoad] = useState(false)
+    const [shouldLoad, setShouldLoad] = useState(true)
 
     useEffect(() => {
-        // Só carrega o script se NÃO estiver em modo ad-free
-        setShouldLoad(!isAdFree())
+        // Verificar status ad-free
+        const adFreeStatus = isAdFree()
+        setShouldLoad(!adFreeStatus)
+        
+        // Se estiver em modo ad-free, remover scripts Monetag existentes
+        if (adFreeStatus) {
+            const scripts = document.querySelectorAll('script[src*="fpyf8.com"]')
+            scripts.forEach(script => {
+                script.remove()
+            })
+            
+            // Remover também elementos criados pelo Monetag
+            const adElements = document.querySelectorAll('[data-monetag], [data-zone="175417"]')
+            adElements.forEach(el => {
+                el.remove()
+            })
+        }
+    }, [isAdFree])
+
+    // Monitorar mudanças no status ad-free a cada segundo
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const adFreeStatus = isAdFree()
+            setShouldLoad(!adFreeStatus)
+            
+            if (adFreeStatus) {
+                // Continuar removendo scripts se aparecerem
+                const scripts = document.querySelectorAll('script[src*="fpyf8.com"]')
+                scripts.forEach(script => {
+                    script.remove()
+                })
+            }
+        }, 1000)
+        
+        return () => clearInterval(interval)
     }, [isAdFree])
 
     // Se estiver em modo ad-free, não renderiza nada

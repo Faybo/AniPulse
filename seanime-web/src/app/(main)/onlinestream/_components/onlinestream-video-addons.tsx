@@ -17,6 +17,7 @@ import { ChevronLeftIcon, ChevronRightIcon, RadioButtonIcon, RadioButtonSelected
 import { useAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { isAdmin } from "@/lib/admin/admin-auth"
 import React from "react"
 import { HiOutlineCog6Tooth } from "react-icons/hi2"
 import { LuGlobe, LuSpeech } from "react-icons/lu"
@@ -97,7 +98,7 @@ export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
                 value={provider || ""}
                 options={[
                     ...providerExtensionOptions,
-                    ...(isAdmin ? [{ value: "add-provider", label: "Find other providers" }] : []),
+                    ...(isAdmin() ? [{ value: "add-provider", label: "Find other providers" }] : []),
                 ]}
                 onValueChange={(v) => {
                     if (v === "add-provider") {
