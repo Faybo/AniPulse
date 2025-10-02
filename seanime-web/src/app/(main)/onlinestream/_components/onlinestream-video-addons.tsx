@@ -81,14 +81,14 @@ export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
     const { servers, providerExtensionOptions, changeProvider, changeServer } = useOnlinestreamManagerContext()
 
     const router = useRouter()
-    const serverStatus = useServerStatus()
-    const isAdmin = !!serverStatus && (
-        // Admin por IP (ambiente dev/local) ou fallback userSimulated==false
-        // Aqui simplificamos: só mostramos para localhost
-        (typeof window !== "undefined" && (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"))
-    )
     const [provider] = useAtom(__onlinestream_selectedProviderAtom)
     const [selectedServer] = useAtom(__onlinestream_selectedServerAtom)
+    const [showAdminOptions, setShowAdminOptions] = React.useState(false)
+
+    // Verificar se usuário é admin
+    React.useEffect(() => {
+        setShowAdminOptions(isAdmin())
+    }, [])
 
     const { mutate: emptyCache, isPending } = useOnlineStreamEmptyCache()
 
@@ -98,7 +98,7 @@ export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
                 value={provider || ""}
                 options={[
                     ...providerExtensionOptions,
-                    ...(isAdmin() ? [{ value: "add-provider", label: "Find other providers" }] : []),
+                    ...(showAdminOptions ? [{ value: "add-provider", label: "Find other providers" }] : []),
                 ]}
                 onValueChange={(v) => {
                     if (v === "add-provider") {

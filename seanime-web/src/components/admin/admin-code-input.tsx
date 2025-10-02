@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import { isAdmin, setAdminCode, removeAdminCode, isValidAdminCode } from "@/lib/admin/admin-auth"
 
 /**
@@ -110,9 +110,9 @@ export function AdminCodeBadge() {
     const [isAdminUser, setIsAdminUser] = useState(false)
 
     // Verificar status admin ao montar
-    useState(() => {
+    React.useEffect(() => {
         setIsAdminUser(isAdmin())
-    })
+    }, [])
 
     if (!isAdminUser) return null
 
