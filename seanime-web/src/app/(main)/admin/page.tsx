@@ -8,6 +8,7 @@ import { IoClose, IoCreate, IoTrash, IoEye, IoEyeOff } from "react-icons/io5"
 import { ContactMessages } from "@/components/admin/contact-messages"
 import Image from "next/image"
 import { getServerBaseUrl } from "@/api/client/server-url"
+import { isAdmin, setAdminCode } from "@/lib/admin/admin-auth"
 
 interface AdminMessage {
     id: string
@@ -39,8 +40,8 @@ type VisitorLog = {
 }
 
 export default function AdminPage() {
-    // Proteção por IP feita no backend (retorna 404), por isso não pedimos senha aqui
-    const [isAuthenticated, setIsAuthenticated] = useState(true)
+    // Verificar se usuário é admin
+    const [isAuthenticated, setIsAuthenticated] = useState(false)
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
     const [messages, setMessages] = useState<AdminMessage[]>([])
@@ -68,6 +69,11 @@ export default function AdminPage() {
     const [activeTab, setActiveTab] = useState<"messages" | "contact">("messages")
     const router = useRouter()
 
+    // Verificar autenticação admin
+    useEffect(() => {
+        setIsAuthenticated(isAdmin())
+    }, [])
+
     // Load messages from localStorage
     useEffect(() => {
         const savedMessages = localStorage.getItem("admin-messages")
@@ -87,7 +93,20 @@ export default function AdminPage() {
         localStorage.setItem("admin-messages", JSON.stringify(newMessages))
     }
 
-    const handleLogin = () => {}
+    const handleLogin = () => {
+        if (password.trim()) {
+            const success = setAdminCode(password)
+            if (success) {
+                setIsAuthenticated(true)
+                setPassword("")
+                setError("")
+                // Recarregar página para aplicar mudanças
+                window.location.reload()
+            } else {
+                setError("Código inválido!")
+            }
+        }
+    }
 
     const handleLogout = () => {
         setIsAuthenticated(false)
@@ -189,14 +208,14 @@ export default function AdminPage() {
                                 🔐 Admin Dashboard
                             </h1>
                             <p className="text-gray-600">
-                                Acesso restrito ao administrador
+                                Acesso restrito - código necessário
                             </p>
                         </div>
 
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Senha de Administrador
+                                    Código de Acesso
                                 </label>
                                 <div className="relative">
                                     <input
@@ -204,7 +223,7 @@ export default function AdminPage() {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         className="w-full p-3 border border-gray-300 rounded-md pr-10 focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                                        placeholder="Digite a senha de administrador"
+                                        placeholder="Digite o código de acesso"
                                         onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
                                     />
                                     <button

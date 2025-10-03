@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { isAdmin, setAdminCode, removeAdminCode, isValidAdminCode } from "@/lib/admin/admin-auth"
+import { isAdmin, setAdminCode, removeAdminCode, isValidAdminCode, hasNoAdsAccess, hasPremiumAccess, getActiveCodeInfo } from "@/lib/admin/admin-auth"
 
 /**
  * Componente para inserir código admin
@@ -11,6 +11,7 @@ export function AdminCodeInput() {
     const [isAdminUser, setIsAdminUser] = useState(isAdmin())
     const [showInput, setShowInput] = useState(false)
     const [error, setError] = useState("")
+    const [activeCodeInfo, setActiveCodeInfo] = useState(getActiveCodeInfo())
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
@@ -22,11 +23,13 @@ export function AdminCodeInput() {
         }
 
         const success = setAdminCode(code)
-        
+
         if (success) {
-            setIsAdminUser(true)
+            setIsAdminUser(isAdmin())
+            setActiveCodeInfo(getActiveCodeInfo())
             setShowInput(false)
             setCode("")
+            setError("")
             // Recarregar página para aplicar mudanças
             window.location.reload()
         } else {
@@ -38,20 +41,37 @@ export function AdminCodeInput() {
     const handleLogout = () => {
         removeAdminCode()
         setIsAdminUser(false)
+        setActiveCodeInfo(null)
         // Recarregar página
         window.location.reload()
     }
 
     if (isAdminUser) {
+        const features = activeCodeInfo?.features || []
+        const hasNoAds = hasNoAdsAccess()
+        const hasPremium = hasPremiumAccess()
+
         return (
             <div className="flex items-center gap-2">
-                <span className="text-xs text-green-500 font-medium">✓ Admin</span>
+                <span className="text-xs px-2 py-1 bg-green-500 text-white rounded font-medium animate-pulse">
+                    ✓ ADMIN
+                </span>
+                {hasNoAds && (
+                    <span className="text-xs px-2 py-1 bg-blue-500 text-white rounded font-medium">
+                        NO ADS
+                    </span>
+                )}
+                {hasPremium && (
+                    <span className="text-xs px-2 py-1 bg-purple-500 text-white rounded font-medium">
+                        PREMIUM
+                    </span>
+                )}
                 <button
                     onClick={handleLogout}
                     className="text-xs px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-                    title="Sair do modo admin"
+                    title="Sair"
                 >
-                    Logout Admin
+                    ✕
                 </button>
             </div>
         )
@@ -61,10 +81,10 @@ export function AdminCodeInput() {
         return (
             <button
                 onClick={() => setShowInput(true)}
-                className="text-xs px-2 py-1 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors"
-                title="Inserir código admin"
+                className="text-xs px-3 py-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg font-medium"
+                title="Inserir código especial"
             >
-                🔑 Admin Code
+                🔑 Put Your Code
             </button>
         )
     }

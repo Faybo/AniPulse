@@ -47,7 +47,7 @@ export function TopNavbar(props: TopNavbarProps) {
                     (ts.hideTopNavbar || __isDesktop__) && "lg:hidden",
                 )}
             >
-                <div data-top-navbar-content-container className="relative z-10 px-4 w-full flex flex-row md:items-center overflow-x-auto">
+                <div data-top-navbar-content-container className="relative z-10 px-4 w-full flex flex-row md:items-center">
                     <div data-top-navbar-content className="flex items-center w-full gap-3">
                         <AppSidebarTrigger />
                         {!isOffline ? <TopMenu /> : <OfflineTopMenu />}

@@ -17,18 +17,27 @@ export function MonetagMultitag() {
         // Verificar status ad-free
         const adFreeStatus = isAdFree()
         setShouldLoad(!adFreeStatus)
-        
-        // Se estiver em modo ad-free, remover scripts Monetag existentes
+
+        // Se estiver em modo ad-free, remover scripts Monetag existentes de forma mais agressiva
         if (adFreeStatus) {
-            const scripts = document.querySelectorAll('script[src*="fpyf8.com"]')
+            // Remover scripts
+            const scripts = document.querySelectorAll('script[src*="fpyf8.com"], script[src*="monetag"]')
             scripts.forEach(script => {
                 script.remove()
             })
-            
-            // Remover também elementos criados pelo Monetag
-            const adElements = document.querySelectorAll('[data-monetag], [data-zone="175417"]')
+
+            // Remover elementos criados pelo Monetag (incluindo iframes e divs)
+            const adElements = document.querySelectorAll('[data-monetag], [data-zone="175417"], iframe[src*="fpyf8.com"], div[id*="monetag"], ins[class*="monetag"]')
             adElements.forEach(el => {
                 el.remove()
+            })
+
+            // Também tentar remover qualquer script que possa ter sido adicionado dinamicamente
+            const allScripts = Array.from(document.scripts)
+            allScripts.forEach(script => {
+                if (script.src && (script.src.includes('fpyf8.com') || script.src.includes('monetag'))) {
+                    script.remove()
+                }
             })
         }
     }, [isAdFree])
@@ -37,17 +46,46 @@ export function MonetagMultitag() {
     useEffect(() => {
         const interval = setInterval(() => {
             const adFreeStatus = isAdFree()
-            setShouldLoad(!adFreeStatus)
-            
-            if (adFreeStatus) {
-                // Continuar removendo scripts se aparecerem
-                const scripts = document.querySelectorAll('script[src*="fpyf8.com"]')
+            const isFullscreen = document.fullscreenElement !== null
+
+            // Não carregar ads se estiver ad-free OU em fullscreen
+            setShouldLoad(!adFreeStatus && !isFullscreen)
+
+            if (adFreeStatus || isFullscreen) {
+                // Remover scripts de forma mais agressiva
+                const scripts = document.querySelectorAll('script[src*="fpyf8.com"], script[src*="monetag"]')
                 scripts.forEach(script => {
                     script.remove()
                 })
+
+                // Remover elementos criados pelo Monetag (incluindo iframes e divs)
+                const adElements = document.querySelectorAll('[data-monetag], [data-zone="175417"], iframe[src*="fpyf8.com"], div[id*="monetag"], ins[class*="monetag"]')
+                adElements.forEach(el => {
+                    el.remove()
+                })
+
+                // Também tentar remover qualquer script que possa ter sido adicionado dinamicamente
+                const allScripts = Array.from(document.scripts)
+                allScripts.forEach(script => {
+                    if (script.src && (script.src.includes('fpyf8.com') || script.src.includes('monetag'))) {
+                        script.remove()
+                    }
+                })
+
+                // Remover também elementos por classe ou id que contenham "monetag"
+                const allElements = document.querySelectorAll('*')
+                allElements.forEach(el => {
+                    const element = el as HTMLElement
+                    if (element.id && element.id.toLowerCase().includes('monetag')) {
+                        element.remove()
+                    }
+                    if (element.className && typeof element.className === 'string' && element.className.toLowerCase().includes('monetag')) {
+                        element.remove()
+                    }
+                })
             }
         }, 1000)
-        
+
         return () => clearInterval(interval)
     }, [isAdFree])
 
