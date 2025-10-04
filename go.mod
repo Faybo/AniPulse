@@ -26,6 +26,7 @@ require (
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/gen2brain/beeep v0.11.1
 	github.com/gin-gonic/gin v1.11.0
+	github.com/glebarez/sqlite v1.11.0
 	github.com/go-toast/toast v0.0.0-20190211030409-01e6764cf0a4
 	github.com/goccy/go-json v0.10.5
 	github.com/gocolly/colly v1.2.0
@@ -62,7 +63,6 @@ require (
 	golang.org/x/time v0.13.0
 	gopkg.in/vansante/go-ffprobe.v2 v2.2.1
 	gorm.io/gorm v1.31.0
-	modernc.org/sqlite v1.23.1
 )
 
 require (
@@ -113,7 +113,6 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
 	github.com/gin-contrib/sse v1.1.0 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
-	github.com/glebarez/sqlite v1.11.0 // indirect
 	github.com/go-llsqlite/adapter v0.0.0-20230927005056-7f5ce7f0c916 // indirect
 	github.com/go-llsqlite/crawshaw v0.5.6-0.20250312230104-194977a03421 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
@@ -139,7 +138,6 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
@@ -221,20 +219,9 @@ require (
 	google.golang.org/protobuf v1.36.9 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/blake3 v1.1.6 // indirect
-	lukechampine.com/uint128 v1.2.0 // indirect
-	modernc.org/cc/v3 v3.40.0 // indirect
-	modernc.org/ccgo/v3 v3.16.13 // indirect
 	modernc.org/libc v1.22.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
 	modernc.org/memory v1.5.0 // indirect
-	modernc.org/opt v0.1.3 // indirect
-	modernc.org/strutil v1.1.3 // indirect
-	modernc.org/token v1.0.1 // indirect
+	modernc.org/sqlite v1.23.1 // indirect
 	zombiezen.com/go/sqlite v0.13.1 // indirect
 )
-
-exclude github.com/mattn/go-sqlite3 v1.14.17
-
-exclude github.com/mattn/go-sqlite3 v1.14.22
-
-exclude github.com/mattn/go-sqlite3 v1.14.32

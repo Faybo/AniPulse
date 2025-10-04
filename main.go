@@ -13,7 +13,7 @@ import (
 
 	"seanime/internal/server"
 
-	_ "modernc.org/sqlite"
+	_ "github.com/glebarez/sqlite"
 )
 
 //go:embed all:web

@@ -8,7 +8,7 @@ import (
 "strings"
 "time"
 
-_ "modernc.org/sqlite"
+_ "github.com/glebarez/sqlite"
 )
 
 const dbPath = "/root/seanime-project/data-dev/seanime.db"

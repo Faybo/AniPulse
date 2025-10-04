@@ -5,7 +5,7 @@ import (
     "encoding/json"
     "net/http"
     "time"
-    _ "modernc.org/sqlite"
+    _ "github.com/glebarez/sqlite"
 )
 
 type AdminMessage struct {
