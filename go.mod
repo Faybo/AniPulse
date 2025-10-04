@@ -39,7 +39,6 @@ require (
 	github.com/imroc/req/v3 v3.55.0
 	github.com/kr/pretty v0.3.1
 	github.com/labstack/echo/v4 v4.13.4
-	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/mileusna/useragent v1.3.5
 	github.com/mmcdole/gofeed v1.3.0
 	github.com/ncruces/go-dns v1.2.7
@@ -64,6 +63,7 @@ require (
 	golang.org/x/time v0.13.0
 	gopkg.in/vansante/go-ffprobe.v2 v2.2.1
 	gorm.io/gorm v1.31.0
+	modernc.org/sqlite v1.23.1
 )
 
 require (
@@ -139,6 +139,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
@@ -220,9 +221,20 @@ require (
 	google.golang.org/protobuf v1.36.9 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/blake3 v1.1.6 // indirect
+	lukechampine.com/uint128 v1.2.0 // indirect
+	modernc.org/cc/v3 v3.40.0 // indirect
+	modernc.org/ccgo/v3 v3.16.13 // indirect
 	modernc.org/libc v1.22.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
 	modernc.org/memory v1.5.0 // indirect
-	modernc.org/sqlite v1.23.1 // indirect
+	modernc.org/opt v0.1.3 // indirect
+	modernc.org/strutil v1.1.3 // indirect
+	modernc.org/token v1.0.1 // indirect
 	zombiezen.com/go/sqlite v0.13.1 // indirect
 )
+
+exclude github.com/mattn/go-sqlite3 v1.14.17
+
+exclude github.com/mattn/go-sqlite3 v1.14.22
+
+exclude github.com/mattn/go-sqlite3 v1.14.32
